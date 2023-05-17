@@ -1,0 +1,246 @@
+---
+title: "STT HW 2 POCOCK7"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+
+1. Exercise 3.11, (page 52) A pollster selects 50 people at random (without replacement) from a group of 1000 people, of whom 500 are homeowners.
+a. What is the probability that more than 60% of the people chosen are home-owners?
+```{r}
+1 - phyper(50*0.6, 500, 500, 50)
+```
+b. What is the probability that between 40 and 60 percent (inclusive) of the people chosen are homeowners?
+```{r}
+phyper(50*0.6, 500, 500, 50) - phyper(50*0.4, 500, 500, 50)
+```
+c. Answer questions a. and b. using the binomial approximation to the exact hypergeometric probabilities.
+```{r}
+1 - pbinom(50*0.6, 50, 0.5) #a
+
+pbinom(50*0.6,50,0.5) - pbinom(50*0.4,50,0.5) #b
+```
+
+d. Are the binomial answers close to the exact hypergeometric probabilities?
+    They are close but not exact. The binomial answer is not running through the set of values without replacement therefore the outcome is not going to be the exact same for each problem. In a they are very close with a difference of 0.05946023-0.05482515=0.00463508. For b they're also very close but differ a bit more: 0.8496033-0.8392204=0.0103829. 
+
+
+2. Exercise 3.13, (page 53) A fair die is rolled 30 times.
+a. What is the probability that exactly half of the rolls are even numbers?
+```{r}
+dbinom(15,30,0.5)
+```
+
+b. What is the probability that more than 20 of the rolls are even numbers?
+```{r}
+1 - pbinom(20,30,0.5)
+```
+
+c. What is the probability that less than 5 of the rolls are greater than 4?
+```{r}
+pbinom(6,30,2/6)
+
+```
+
+
+
+
+3. Exercise 4.2, (page 61) The number of minutes that a bus is late is modeled by the Uniform density on the interval (0, 5).
+a. Draw a picture of the density function.
+```{r}
+x = seq(0,5,0.01)
+y = rep(1/5, times = length(x))
+plot(x,y, type = 'l')
+```
+
+b. What is the probability that the bus is more than 1 minutes late?
+```{r}
+1 - punif(1,0,5)
+```
+
+c. What is the conditional probability that the bus is more than 4 minutes late, given that it is already 3 minutes late?
+```{r}
+(1-punif(4,0,5))/(1-punif(3,0,5))
+```
+
+
+
+
+4. Exercise 4.4, (page 64) A talkative person is using a public phone; Clark Kent is waiting for the phone booth to be free so that he can change into his Superman costume.
+Suppose that the time 𝑇 (in minutes) until the talkative person is through has an exponential density with parameter 𝜆 = .1.
+a. What is the probability that Clark Kent will have to wait for more than 5 minutes?
+```{r}
+1 - pexp(5, 0.1)
+```
+
+b. What is the probability that Clark Kent will have to wait for between 5 and 10 minutes?
+```{r}
+pexp(10,0.1) - pexp(5,0.1)
+```
+
+c. The person has already been talking for 15 minutes. What is the probability that Clark Kent will have to wait for an additional amount of time greater than 5 minutes?
+```{r}
+(1-pexp(20,0.1))/(1-pexp(15,0.1))
+```
+
+d. You should have gotten the same answer for c. as you got for a., which means that the probability of waiting an additional time of more than 5 minutes doesn’t change even if Clark Kent already has waited 15 minutes. In fact you can check that the probability of waiting an additional time of more than 5 minutes given that he has already waited 𝑡 minutes is the same no matter what the value of 𝑡 is. This is an example of what is called the “memoryless” property of the exponential distribution. Check that the probability that Clark Kent will have to wait for an additional amount of time greater than 5 minutes, given that he already has waited for 25 minutes, is the same
+```{r}
+ (1-pexp(30,0.1))/(1-pexp(25,0.1))
+```
+
+
+
+
+5. Exercise 4.7, (pages 68-69) Using the normal density with 𝜇 = 50 cm (mean) and 𝜎 = 5 cm (SD) as a model for the length of catfish in a lake, answer the following questions. Draw an  appropriate picture of a normal density for each question.
+a. If a catfish is selected at random, what is the probability that it is more than 60 cm in length?
+```{r}
+1 - pnorm(60, 50,5)
+```
+
+b. What is the length 𝑥 such that exactly 10% of catfish are shorter than 𝑥?
+```{r}
+x <- qnorm(0.1, 50,5)
+print(x)
+```
+
+c. What is the length 𝑦 such that exactly 70% of catfish are longer than 𝑦?
+```{r}
+y <- qnorm(0.3, 50,5)
+print(y)
+```
+
+
+
+6. Exercise 4.8, (page 69) Let 𝑋 be a random variable with 𝜇 = 80 and 𝜎 = 10.
+a. Compute ℙ(𝜇 − 𝜎 < 𝑋 < 𝜇 + 𝜎). Note that this is ℙ(70 < 𝑋 < 90).
+```{r}
+pnorm(90,80,10) - pnorm(70,80,10)
+```
+
+b. Compute ℙ(60 < 𝑋 < 100). Note that this can be written as ℙ(𝜇 − 2𝜎 < 𝑋 < 𝜇 + 2𝜎).
+```{r}
+pnorm(100,80,10) - pnorm(60,80,10)
+```
+
+c. Compute ℙ(50 < 𝑋 < 110). Note that this can be written as ℙ(𝜇 − 3𝜎 < 𝑋 < 𝜇 + 3𝜎).
+```{r}
+pnorm(110,80,10) - pnorm(50,80,10)
+```
+
+d. The relationships among normal densities suggest that you should get the same answers to these three questions no matter what the values of 𝜇 and 𝜎. Verify that this is true by calculating the same three quantities, but this time for a standard normal distribution, i.e., a normal distribution with 𝜇 = 0 and 𝜎 = 1
+```{r}
+pnorm(1,0,1)-pnorm(-1,0,1)
+
+pnorm(2,0,1)-pnorm(-2,0,1)
+
+pnorm(3,0,1)-pnorm(-3,0,1)
+```
+
+
+
+7. Exercise 4.9, (page 69) A machine produces nails whose lengths are normally distributed with 𝜇 = 2 inches and 𝜎 = 0.05 inches.
+a. What proportion of nails are less than 1.9 inches in length?
+```{r}
+pnorm(1.9,2,0.05)
+```
+
+b. What proportion of nails are longer than 2.1 inches in length?
+```{r}
+1- pnorm(2.1,2,0.05)
+
+```
+
+c. What is the length 𝑥 for which exactly 20% of the nails are longer than 𝑥?
+```{r}
+x <- qnorm(0.8,2,0.05)
+print(x)
+```
+
+d. What is the length 𝑦 for which exactly 20% of the nails are shorter than 𝑦?
+```{r}
+y <- qnorm(0.2,2,0.05)
+print(y)
+```
+
+
+
+8. You are the data scientist at a pharmaceutical start up. Over the next 4 years the start up is expected to discover new drugs at a random rate which can be fit as a Poisson process with a rate of 5/year. Each drug thus discovered has a 15% chance of obtaining FDA approval.
+a. Do 10,000 simulations of the number of drugs that will be discovered. Plot a histogram of the results.
+```{r}
+drugs_discovered <- rpois(10000,5)
+hist(drugs_discovered)
+```
+
+b. Next, use those 10,000 simulations to determine the number of drugs which will survive FDA approval. Plot a histogram of those results.
+```{r} 
+# do a loop for this one
+approved_drugs <- numeric(10000) 
+for(i in 1:10000){
+  approved_drugs[i] <- rbinom(1,drugs_discovered[i], 0.15)
+}
+hist(approved_drugs, breaks = max(approved_drugs))
+ 
+
+```
+
+c. Each drug obtaining FDA approval will give the startup revenue which fits an exponential distribution with parameter $10,000,000. Use the simulations to model the amount of revenue, and then plot a histogram of the revenue results.
+```{r}
+revenue <- numeric(10000) 
+for(i in 1:10000){
+  revenue[i] <- sum(rexp(approved_drugs[i],1/10000000))
+}
+hist(revenue)
+ 
+```
+
+d. The R&D cost for the startup is $26,000,000. Find the percent of simulation results for which the startup makes a profit.
+```{r}
+sum(revenue>10000000)/length(revenue)
+```
+
+e. You are asked to determine business strategy to determine whether more money should be spent on R&D or marketing. If the money is spent on R&D, 20% more drugs will be discovered, so that drugs will be discovered at a rate of 6 per year instead of 5. If the money is spent on marketing, the revenue for each drug will be increased by 20%, so that each drug’s revenue will fit an exponential distribution with parameter $12,000,000. Which alternative will yield higher revenue on average for the startup?
+```{r}
+sim <- 10000000
+drugs_discovered2 <- rpois(sim,5)
+approved_drugs2 <- numeric(sim) 
+for(i in 1:sim){
+  approved_drugs2[i] <- rbinom(1,drugs_discovered2[i],0.15)
+}
+revenue2 <- numeric(sim) 
+for(i in 1:sim){
+  revenue2[i] <- sum(rexp(approved_drugs2[i],1/10000000))
+}
+```
+
+
+
+```{r}
+drugs_discovered3 <- rpois(sim,5)
+approved_drugs3 <- numeric(sim) 
+for(i in 1:sim){
+  approved_drugs3[i] <- rbinom(1,drugs_discovered3[i],0.15)
+}
+revenue3 <- numeric(sim) 
+for(i in 1:sim){
+  revenue3[i] <- sum(rexp(approved_drugs3[i],1/12000000))
+}
+
+```
+
+
+```{r}
+mean(revenue2)
+mean(revenue3)
+
+```
+
+So clearly the average revenue for money spent on marketing. 
+
+
+
+
+
+

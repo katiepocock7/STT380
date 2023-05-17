@@ -1,0 +1,21 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+STT 380
+In-Class Assignment 17
+For this problem we will be looking at the data in the hypodata.csv file.
+Read the data into R.  
+```{r}
+hypodata <- read.csv('hypodata.csv')
+glimpse(hypodata)
+```
+
+Find the mean, standard deviation, and standard error.
+Assuming the data is normal, build a 99% (2-sided) confidence interval with the t distribution.
+Next, use standard bootstrapping to build the 99% confidence interval.
+Use the Bayesian bootstrapping to build the 99% confidence interval.
+Plot a histogram of the simulations in (4) and (5).  Does it look like the simulated means fit a normal distribution?
+How do the 3 confidence intervals compare?
+Next, use both standard and Bayesian bootstrapping to build a 99% CI for the standard deviation.  Plot a histogram of each.  Is the graph symmetric or skewed?

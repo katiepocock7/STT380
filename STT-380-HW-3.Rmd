@@ -1,0 +1,261 @@
+---
+title: "STT380 HW3 POCOCK"
+output: html_notebook
+---
+
+
+1. For the following 4 discrete distributions, calculate the expected value and standard deviation in following two/ three ways. Compare to make sure you get approximately the same result for each.
+(i) create a simulation of 1,000,000 outcomes, and calculate the average and standard deviation of the outcomes;
+(ii) use the formulas for expected values and variance for standard distributions (for example, for binomial, E(X) = np); and
+iii) (for binomial distribution only) use sequences of the possible outcomes to generate the expected value and standard deviation.
+(a) binomial, 12 trials, p = 0.2
+```{r}
+sim<- rbinom(1000000,12,0.2)
+mean(sim)
+12*0.2
+
+sd(sim)
+(12*0.2*(1-0.2))^0.5
+
+sum((0:12) * dbinom(0:12, 12, 0.2))
+(sum((0:12)^2 * dbinom(0:12, 12, 0.2))-(sum((0:12) * dbinom(0:12, 12, 0.2)))^2)^0.5
+```
+
+(b) exponential, λ = 0.03
+```{r}
+sim <- rexp(1000000,0.03) 
+mean(sim)
+sd(sim) 
+1/0.03
+```
+
+(c) Poisson, rate = 0.4/minute, t = 20 minutes
+```{r}
+0.4*20
+mean(rpois(100000,0.4*20))
+sd(rpois(100000,0.4*20))
+(0.4*20)^0.5
+```
+
+(d) Uniform, interval = [0, 6]
+```{r}
+sim <- runif(1000000,0,6) 
+mean(sim)
+6/2 
+
+sd(sim) 
+6/(12)^0.5
+```
+
+
+
+
+
+2. You are a manager for product development. You have a $500,000 budget to spend on research for a new product. There are two products you can research:
+(i) Product 1 has a 30% chance of producing a successful prototype. If a prototype is created, it has an 80% chance of making it to market. If the product makes it to market, the amount of sales it will produce is modeled as an exponential distribution with mean value $9,000,000.
+(ii) Product 2 has a 60% chance of producing a successful prototype. If a prototype is created, it has an 90% chance of making it to market. If the product makes it to market, the amount of sales it will produce is modeled as a uniform distribution between $2,000,000 and $8,000,000. However, if successful, there is a 30% chance that the company will be successfully sued for patent infringement, in which case, the company will lose $1 and $3,000,000 (according to a uniform distribution).
+(a) Calculate the expected value of the alternatives and determine whether you should give the go-ahead for the development of product 1 or product 2
+```{r}
+product_1 <- 0.3 * 0.8 * 9000000
+product_1
+product_2 <- 0.6*0.9*(6000000) - 0.6*0.3*(3000001)
+product_2
+```
+product 2
+
+(b) Create a simulation for two products, with 1,000,000 runs. Confirm that the average value of the simulation is about equal to what you calculated for the alternatives in (a). For percent of the simulations do you at least make your money back for the development?
+```{r}
+product1_sim <- rbinom(1000000,1,0.3)*rbinom(1000000,1,0.8)*rexp(1000000,1/9000000)
+mean(product1_sim)
+ 
+
+product2_sim <- rbinom(1000000,1,0.6)*rbinom(1000000,1,0.9)*(runif(1000000,2000000,8000000)-rbinom(sims,1,0.3)*runif(sims,1, 3000000))
+mean(product2_sim)
+```
+Yes!
+
+
+(c) For what percent of simulations do you make more money for Product 1 vs. Product 2?
+```{r} 
+sum(product1_sim > product2_sim)/length(product1_sim)
+
+```
+
+(d) Suppose the company needs the revenue to pay off a $7 million loan. Which alternative is more likely to produce more than $7,000,000 in revenue?
+```{r}
+sum(product1_sim>=7000000)/length(product1_sim)
+sum(product2_sim>=7000000)/length(product2_sim)
+```
+product 1
+
+
+3. Define a multivariate normal distribution with mean value = (-1, 2), var(X) = 1, var(Y) = 2, and the correlation of X and Y = -0.3. Plot this distribution, by
+(a) Creating a contour plot of the pdf, and
+```{r}
+library(mvtnorm)
+min <- -4
+max <- 6
+var_x <- 1.0
+var_y <- 2.0
+cor_xy <- -0.3
+Sigma <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- seq(min, max, by = 0.1)
+y <- seq(min, max, by = 0.1)
+z <- matrix(nrow=length(x), ncol=length(y))
+co_df <- data.frame('x', 'y', 'z')
+for (i in 1:length(x)){
+  for (j in 1:length(y)){
+    z[i,j] <- dmvnorm(c(x[i],y[j]),c(-1,2),Sigma)
+  }
+}
+contour(x, y, z)
+
+co_df <- data.frame('x' = x, 'y' = y)
+df.grad <- expand.grid(x = seq(-4,4, by = 0.1),y = seq(-4,4, by = 0.1))
+dens <- cbind(df.grad, z = dmvnorm(df.grad,c(0,0), Sigma))
+```
+
+(b) Simulate the distribution 1,000 times and plot the simulated points.
+```{r}
+library(MASS)
+plot(mvrnorm(1000, mu = c(-1,2), Sigma))
+
+```
+
+(c) Next, using a larger simulation of the same distribution (1,000,000 values), estimate
+```{r}
+sim <- mvrnorm(1000000, mu = -c(-1,2), Sigma)
+x <- sim[,1]
+y <- sim[,2]
+```
+(i) E(X)
+```{r}
+e_x <-sum(x)/length(x)
+e_x
+```
+(ii) E(Y)
+```{r}
+e_y <-sum(y)/length(y)
+e_y
+```
+(iii) Var(X) and Var(Y)
+```{r}
+var_x2 <- (sum(x^2)/length(x^2)) - e_x^2
+var_x2
+var_y2 <- (sum(y^2)/length(y^2)) - e_y^2
+var_y2
+```
+
+(iv) E(X + Y) and Var(X + Y). Compare the result to what the results of the formulas for
+linear combinations of random variables.
+```{r}
+mean(x+y)
+mean(x)+mean(y)
+var(x+y)
+var(x) + var(y) +2*cov(x,y)
+```
+
+(v) E(X|Y = 3)
+```{r}
+e <- 0.1
+mean(x[y<(3+e) & y>(3-e)])
+```
+
+
+
+
+
+4. Suppose we have an exponential probability distribution with parameter λ = 1/3, so that its expected value is 3. We will perform some simulation experiments to determine the behavior of the sample mean.
+(a) Generate 2,000 simulations which each constitute 100 outcomes of this distribution. Calculate the mean values for the 2,000 experiments.
+```{r}
+sim <- numeric(2000) 
+for(i in (1:2000)){
+   sim[i] <- mean(rexp(100, 1/ 3))
+}
+```
+
+(b) Next, calculate the mean value and variance for the 2,000 sample means.
+```{r}
+mean(sim)
+var(sim)
+```
+
+(c) Repeat (a) and (b) for N = 1,000, 10,000, 100,000, and 1,000,000 outcomes (2,000 simulations of each). Note: 1,000,000 could take several minutes. N Mean of Sample Means Variance of Sample Means
+100
+1,000
+10,000
+100,000
+1,000,000
+```{r}
+N <- 100
+sim_100 <- numeric(2000) 
+
+for(i in 1:2000){
+  sim_100[i] <- mean(rexp(N,1/3))
+}
+
+N2 <- 1000
+sim_1000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_1000[i] <- mean(rexp(N2,1/3))
+}
+
+N3 <- 10000
+sim_10000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_10000[i] <- mean(rexp(N3,1/3))
+}
+
+N4 <- 100000
+sim_100000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_100000[i] <- mean(rexp(N4,1/3))
+}
+
+N5 <- 1000000
+sim_1000000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_1000000[i] <- mean(rexp(N5,1/3))
+}
+
+```
+
+```{r}
+print(mean(sim_100))
+print(mean(sim_1000))
+print(mean(sim_10000))
+print(mean(sim_100000))
+print(mean(sim_1000000))
+```
+
+
+```{r}
+print(var(sim_100))
+print(var(sim_1000))
+print(var(sim_10000))
+print(var(sim_100000))
+print(var(sim_1000000))
+
+```
+
+
+
+(d) Plot the log(Variance) vs. log(N). Do you get something which is close to a straight line? What is the slope? Does the relationship between N and the variance close to what you would expect with the Central Limit Theorem?
+```{r}
+vars <- numeric(5)
+vars[1] <- var(sim_100)
+vars[2] <- var(sim_1000)
+vars[3] <- var(sim_10000)
+vars[4] <- var(sim_100000)
+vars[5] <- var(sim_1000000)
+
+plot(log(c(100,1000,10000,100000,1000000)),log(vars), type="l")
+```
+
+
+```{r}
+
+lm(log(vars) ~ log(c(100,1000,10000,100000,1000000)))
+```
+
+
