@@ -1,0 +1,312 @@
+---
+title: "STT 380 HW 1 POCOCK"
+output: html_notebook
+---
+
+1. For 2 events A and B, the probability of A occurring is 0.50, and the probability of B occurring is 0.4. The probability of neither A nor B occurring is 0.4.
+a. (a) What is the probability of A or B occurring?
+        assuming our events are disjoint (mutually exclusive) =>
+```{r}
+1 - 0.4
+```
+        
+b. (b) What is the probability of A and B occurring?
+```{r}
+(0.5 + 0.4) - 0.6
+```
+
+
+2. 2 6-sided dice are rolled (each with values 1, 2, 3, 4, 5, 6). The outcome of the roll is found by the difference between the larger and smaller numbers (so that if a 3 and 5 are rolled, the result is a 2, if a 5 and a 1 is rolled, the results is a 4, if the results is a 3 and a 3, the results is a 0, etc.)
+a. Find the sample space.
+
+```{r}
+c(0,1,2,3,4,5)
+```
+
+b. Find the probability that the result is a 1.
+```{r}
+10/36
+```
+
+c. Create a simulation of 10,000 rolls of the 2 dice. Calculate the difference, and find the
+proportion of rolls for which the result is a 1. Does your result approximately agree with
+what you got in (b)?
+```{r}
+sim <- 10000 # number of simulations
+difference <- replicate(10000,0)
+for(i in 1:sim){
+  vals <- sample(c(1:6), 2, replace= TRUE) # create the random values
+  difference[i] <- abs(vals[1]-vals[2]) # calculate the value of interest
+}
+
+sum(difference==1)/sim
+```
+
+
+3. In a certain game, 1 6-sided die is rolled and 2 coins are flipped. A person will win if the die rolls exactly the same value as the number of heads flipped.
+a. What is the probability of winning the game?
+```{r}
+3/24
+```
+
+b. Create a simulation of 10,000 plays of the game. Does the number of wins
+approximately agree with (a)?
+```{r}
+sim <- 10000 
+wins <- replicate(sim,0)
+for(i in 1:sim){
+  roll <- sample(c(1:6), size = 1, replace = TRUE)
+  coin <- sample(c(0,1), size = 2, replace = TRUE)
+  wins[i] <-  roll == sum(coin) 
+}
+
+sum(wins)/sim
+```
+Yes it does approximately agree with a, but is not spot on which is a good sign!
+
+
+4. Exercise 1.7. In one game, de Mere bet that in four independent rolls of a fair die, 
+at least one six would appear. We will start by simulating that game.
+
+a. Write a function deMere1 that simulates one play of the game, returning 1 if
+de Mere wins (i.e. if at least one six appears on four the four rolls) and a 0 if
+de Mere loses. You will probably find the sample() function useful.
+```{r}
+deMere1 <- function() {
+  dice <- sample(c(1:6), size = 4, replace = TRUE)
+  if (6 %in% dice){
+    return(1)
+  }else{
+    return(0)
+  }
+}
+
+deMere1()
+```
+
+b. Now write a function called deMere1WinProb that takes input a number of
+repetitions numRep and which simulates numRep plays of the game, returning
+the proportion in which de Mere wins. Run this function with numRep equal
+to 50000 and report the proportion of games in which de Mere wins. Is the
+proportion more or less than 0.5?
+```{r}
+deMere1WinProb <- function(numRep) {
+  wins <- replicate(numRep,0)
+  for (i in 1:numRep){
+    wins[i] <- deMere1()
+  }
+  prop_wins <- sum(wins)/(numRep)
+  return(prop_wins)
+}
+
+
+deMere1WinProb(50000)
+```
+The proportion I got is just greater than 0.5. 
+
+c. de Mere also was interested in a game where he bet that in 24 independent rolls
+of a pair of fair dice, at least one of the 24 would result in two sixes. Write
+a function deMere2 that returns a 1 if de Mere wins, and returns a 0 if de
+Mere loses. When you use sample() you might want to sample 24 times from
+c(0,1), with the probability of getting a 1 being the probability of rolling a
+pair of sixes with two fair dice. That way you can check whether de Mere wins
+by just seeing whether the sum of the output of sample() is positive or not.
+```{r}
+deMere2 <- function() {
+  dice <- sample(c(0,1), size = 24, replace = TRUE, prob = c(35/36, 1/36))
+  if (1 %in% dice){
+    return(1)
+  }else{
+    
+    return(0)
+  }
+}
+
+deMere2()
+```
+
+d. Now write a function called deMere2WinProb that takes as input a number of
+repetitions numRep and which simulates numRep plays of the game, returning
+the proportion in which de Mere wins. Run this function with numRep equal
+to 50000 and report the proportion of games in which de Mere wins. Is the
+proportion more or less than 0.5?
+```{r}
+deMere2WinProb <- function(numRep) {
+  wins <- replicate(numRep,0)
+  for (i in 1:numRep){
+    wins[i] <- deMere2()
+  }
+  prop_wins <- sum(wins)/(numRep)
+  return(prop_wins)
+}
+
+
+deMere2WinProb(50000)
+```
+The proportion is just below 0.5.
+
+
+e. You may wonder why the number of repetitions was chosen to be 50000. Later
+in the text tools will be developed that allow choices of the number of repe-
+titions to be made in a principled way. For now, we will just observe how
+the proportion of wins changes as the number of repetitions grows. Use the
+deMere1 function to generate 50000 plays of the game, storing the resulting
+sequence of 0s and 1s in an R object called deMere1Wins.
+
+```{r}
+sim <- 50000
+deMere1Wins <- replicate(sim,0)
+
+for (i in 1:sim){
+  deMere1Wins[i] <- deMere1()
+}
+```
+
+f. Plot the proportion of games won versus the number of games played, using a
+line (e.g., type = "l" in the plot() function.) Start with the tenth game, so
+don’t plot the first 9 games.
+```{r}
+x <- 1:50000
+y <- cumsum(deMere1Wins)/x
+
+plot(x[-9:-1],y[-9:-1],  type = "l", xlab = "# of Games", ylab = "Games Won", col = "green")
+title("Games Won vs. # of Games")
+```
+
+g. Repeat e. and f. for the second (pairs of sixes in 24 tosses) game, and add the
+plot of the proportion of games won versus the number of games played to the
+existing plot, again throwing out the first 9 games.
+```{r}
+sim <- 50000
+deMere2Wins <- replicate(sim,0)
+
+for (i in 1:sim){
+  deMere2Wins[i] <- deMere2()
+}
+
+x2 <- 1:50000
+y2 <- cumsum(deMere2Wins)/x
+
+plot(x2[-9:-1],y2[-9:-1],  type = "l", xlab = "# of Games", ylab = "Games Won")
+lines(x[-9:-1],y[-9:-1],  type = "l", col="red")
+title("Games Won vs. # of Games")
+
+```
+
+
+5. Exercise 1.8. (Adapted from Grinstead and Snell (2012)) Two people, Luke and
+Leia, are playing a coin-flipping game. A fair coin is flipped 𝑛 times. If the coin
+comes up HEADS on a flip, Luke wins 1 dollar from Leia. If the coin comes up
+TAILS, Leia wins 1 dollar from Luke. For example with 𝑛 = 10, if the sequence of
+tosses is
+𝐻𝑇 𝑇 𝐻𝐻𝐻𝑇 𝐻𝑇 𝐻
+then Luke’s winnings at each stage would be
+1, 0, −1, 0, 1, 2, 1, 2, 1, 2
+with Luke being 2 dollars ahead at the end of the game.
+We will investigate two questions related to this game with 𝑛 = 40. We will focus
+on Luke’s winnings, but the same analysis could be done for Leia’s winnings.
+a. At the end of the game, Luke will have won some amount between −40 dollars
+(if all the tosses were TAILS) and 40 dollars (if all the tosses were HEADS).
+Letting 𝑊 stand for Luke’s winnings, what would you expect the most likely
+value for 𝑊 to be? What would you expect the probability mass function for
+𝑊 to look like?
+
+
+  The expected value for W to be would be 0. Since the probability of getting a Heads is 
+  0.5, we would say that half of the n=40 would be heads and half would be tails. So +20
+  and -20 in dollar earnings resulting in zero dollars at the end of the game. My expectation
+  for the pmf is for it to be greater at 0 and decrease as you  get farther from 0. I believe the 
+  maximum of the pmf will be at 0.
+
+
+b. Write a function called lukeWinnings that takes a input number of rep-
+etitions numRep and that returns the simulated probability mass function of
+Luke’s winnings. So for example the function should return, for 𝑊 = 2, the
+proportion of the repetitions that led to Luke winning 2 dollars at the end of
+the 40 flips. This is somewhat similar to the simulation done earlier in this
+chapter that returned the simulated probability mass function of the number
+of HEADS in 25 flips, so you might want to return to that example if desired.
+```{r}
+lukeWinnings <- function(numRep){ 
+  pmf <- replicate(81,0)
+for(i in 1:numRep){
+     heads <- sum(sample(c(0,1), 40, replace=TRUE))
+     winnings <- heads - (40 - heads)
+     pmf[winnings + 41] <- pmf[winnings + 41] + 1
+}
+return(pmf/numRep) }
+ prob_Luke <- lukeWinnings(50000)
+```
+c. Graph the simulated probability mass function, using vertical bars to repre-
+sent the probabilities (e.g., type = "h" in the plot() function). Does the
+probability mass function agree with your expectations from a.?
+```{r}
+plot(x = -40:40,y = prob_Luke, type="h", xlab = "Change in $", ylab = "Luke's Probability")
+title("Games Won vs. # of Games")
+```
+Yes! The trend I expected is what I found to be shown in the graph of the probability mass function. 
+
+
+d. Next we turn our attention to the amount of times during the 40 tosses that
+Luke is in the lead. Most peoples’ intuition suggests that out of 40 plays, since
+the game is fair, the most likely number of times that Luke would be in the
+lead would be 20, and it would be quite unlikely that Luke would be in the
+lead either 0 or 40 times. Does that agree with your expectations?
+  
+  Yes that does agree with my expectations. We got that the likely number of times 
+  that Luke would be in the lead would be about which is close to 20, 50% of the 40 games. 
+  It would be quite unlikely that Luke would be in the lead either 0 or 40 times. 
+
+
+e. First, suppose that an R vector tmp contains the results of one play of the
+game, with a value of 0 representing TAILS and a value of 1 representing
+HEADS. For example, if the first 10 tosses were
+𝐻𝑇 𝑇 𝐻𝐻𝐻𝑇 𝐻𝑇 𝐻
+then the vector tmp would contain 1, 0, 0, 1, 1, 1, 0, 1, 0, 1 in its first 10 places.
+Verify that the R code 2*cumsum(tmp) - 1:40 returns Luke’s winnings at
+each play of the game.
+```{r}
+tmp <- sample(c(0,1), 40, replace = TRUE)
+ 
+2*cumsum(tmp) - 1:40
+
+```
+
+f. Write a function called leadsDist that takes a number of repetitions numRep
+as input, and returns the simulated probability mass function of the number
+of times, during the 40 tosses, that Luke is in the lead. You will probably find (e)
+above to be helpful.
+```{r}
+leadsDist <- function(numRep){
+  pmf <- replicate(41,0)
+for(i in 1:numRep){
+     tmp <- sample(c(0,1), 40, replace = TRUE)
+     lead <- sum((2*cumsum(tmp) - 1:40)>0)
+     pmf[lead] <- pmf[lead]+1
+}
+return(pmf/numRep) }
+ luke_lead <- leadsDist(50000)
+```
+
+g. Graph the simulated probability mass function, using vertical bars to repre-
+sent the probabilities (e.g., type = "h" in the plot() function). Does the
+probability mass function agree with your expectations from d.
+```{r}
+plot(x = 1:41, y = luke_lead, type="h", xlab = "Number of Tosses", ylab = "Luke's Probability")
+title("Luke Lead Probability")
+
+```
+This probability mass function does not match up with my expectations. Typically one would assume that
+the most likely number of times that Luke would be in the lead would be 20, from the graph we can 
+clearly see that that is not the case and the probability actually increases when you get closer to 40 and to 
+0. I also believe that it would not be likely for Luke would be in the lead either 0 or 40 times which we do 
+see in the graph since he is not steadily increasing or decreasing from the values of 10-30. 
+
+
+
+
+
+
+
+
+
