@@ -1,0 +1,59 @@
+---
+title: "quiz4"
+output: html_notebook
+---
+
+
+
+A haunted mansion has a variable number of ghosts passing through it.  It is thought that the number of ghosts each night fits an exponential distribution.  Over the last week leading up to Halloween, a pair of intrepid ghost watchers observed the following number of ghosts: 4, 1, 3, 7, 2, 1, 2.  Use maximum likelihood estimation to estimate the parameter for the number of ghosts.
+```{r}
+samp <- c(4,1,3,7,2,1,2)
+log_likelyhood <- function(a) length(sample) * log(a) - (a+1) * sum(log(samp))
+
+optimize(log_likelyhood,c(1,100),maximum = TRUE)
+```
+
+
+
+After the zombie apocalypse, a group of 20 people are barricaded in a medieval castle.  Outside the castles is a horde of zombies.  The 20 people don't agree about the number of zombies; the average number of zombies seen is 150 with standard deviation 40.  If the number of zombies is normally distributed, create a 99% 2-sided confidence interval for the number of zombies outside the castle.
+```{r}
+LCL = qnorm(0.01, 150, 40/sqrt(20))
+UCL = qnorm(0.99, 150, 40/sqrt(20))
+
+150 + 40/sqrt(20) *qnorm(0.01)
+150 + 40/sqrt(20) *qnorm(0.99)
+
+```
+
+
+
+
+
+
+
+
+A group of vampire hunters are crafting wooden stakes that will be strong enough to kill a vampire.  The minimum pressure for a wooden stake to kill a vampire is 250 Megapascals.  A group of wooden stakes are fabricated with identical properties, and 10 are strength-tested.  The pressure measured that they can withstand is 260 Megapascals, with a standard deviation of 10 Megapascals.  They want to be 99% sure that the stake will kill the vampire. 
+
+(a) What kind of confidence interval will you use?
+
+(b) To a 99% confidence, will the wooden stakes kill vampires?
+```{r}
+#min needed 250
+#n = 10
+#max = 260 
+#sd = 10
+#mean = 250
+250 + 10/sqrt(10) *qnorm(0.99)
+
+```
+
+
+
+
+
+
+
+
+
+
+

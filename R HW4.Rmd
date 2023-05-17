@@ -1,0 +1,151 @@
+---
+title: "Homework 4 POCOCK"
+output: html_notebook
+---
+
+STT 380
+Homework 4
+Katie Pocock
+Due Thursday, October 27 at 11:59:59pm
+
+
+1. Load the penguins dataset available in D2L. Produce a pairs plot with ggpairs, colored by
+species. Then use the pairs plot to answer the following questions.
+```{r}
+penguins <- read.csv('Downloads/penguins.csv')
+library(GGally)
+ggpairs(penguins, mapping=ggplot2::aes(colour = species))
+```
+
+a. Which species has the most members in the dataset?
+    Adelie
+b. Which other variable has the highest correlation with body mass (for the overall
+dataset)?
+    Flipper length
+c. For Adelie, which other variable has the highest correlation with body mass?
+    Bill depth
+d. For each field, which species have similar values according to the histogram?
+    Bill length: chinstrap and gentoo
+    Bill depth: chinstrap adn adelie
+    Flipper length: chinstrap and adelie
+    Body mass: chinstrap and adelie 
+
+2. Take the function f(x, y, z) = x2 – 3x + y4 – 3y + z2 + 10z + cos(xyz). Find the location of the minimum value. Use c(0, 0 ,0) as the initialization location. Try different initialization locations. Can you find different locations for minima? If you see multiple ones, which one seems to be a global minimum?
+```{r}
+fm <- function(x) x[1]^2 - 3*x[1] + x[2]^4 - 3*x[2] + x[3]^2 + 10*x[3] + cos(x[1]*x[2]*x[3])
+
+print(optim(c(0,0,0),fm))
+```
+so the location of the minimum value is (0.9586131,0.7348568,-4.8938219)
+```{r}
+min_vals <- c()
+for (i in seq(-10,10,1)){
+  for (j in seq(-10,10,1)){
+    for (k in seq(-10,10,1)){
+      min_vals <- append(min_vals, optim(c(i,j,k),fm)$value)
+    }
+  }
+}
+summary(min_vals)
+min_val <- min(min_vals)
+min_val
+
+```
+
+```{r}
+optim(c(10,10,-10),fm)[1:2]
+
+```
+so the minimum value of -30.12827 is at point c(10,10,-10) and would be the global minimum within the boundaries of -10 to 10 of x,y,z values.
+
+3. One the interval [1, ∞] a probability distribution is defined as p(x) = /x(+1) . Given the sample {2, 3, 2.5, 3, 1.6, 1.4, 1.3, 1.8, 1.9, 2.4, 4.6}, find the log-likelihood, and then calculate the maximum likelihood estimate for the parameter . (Hint: the likelihood function will look very similar to what we had in ICA 14, #2)
+```{r}
+samp <- c(2, 3, 2.5, 3, 1.6, 1.4, 1.3, 1.8, 1.9, 2.4, 4.6)
+log_likelyhood <- function(a) length(sample) * log(a) - (a+1) * sum(log(samp))
+
+optimize(log_likelyhood,c(1,100),maximum = TRUE)
+
+```
+so the max : 1.000045
+
+
+
+4. The beta distribution on the interval 0 < x < 1 has the form Where  is the gamma function. The two parameters α and β are positive constants. Fortunately, you do not need to use this messy expression, since R has a function to express the probability density: p(x) = dbeta(x, alpha, beta) 
+a. Take the sample data in D2L called beta_samp.csv. Construct the log-likelihood function using dbeta.
+```{r}
+beta_samp <- read.csv('Downloads/beta_samp.csv')
+beta_samp
+
+p_x <- function(para) (-1)*sum(log(dbeta(beta_samp$x, para[1],para[2])))
+#?dbeta()
+```
+
+b. Use the optim function in R to find the maximum likelihood estimate for the parameters.
+```{r}
+optim(c(1,1),p_x)
+```
+So alpha = 2.97645 and beta = 4.94619
+
+c. Graph the beta distribution for the given parameters between 0 < x < 1.
+```{r}
+beta = seq(0,1,0.01)
+plot(beta, dbeta(beta, 2.97645,4.94619), type = 'l')
+```
+
+
+
+5. With the penguins dataset, construct a 99% two-sided confidence interval for the mean value for body mass with the t-distribution. Then do the same for each species individually.
+```{r}
+penguin_mass <- penguins$body_mass_g
+penguin_mean <- mean(penguin_mass)
+penguin_sd <- sd(penguin_mass)
+penguin_size <- length(penguin_mass)
+
+LCL <- penguin_mean + penguin_sd/sqrt(length(penguin_mass)) * qt(0.005, penguin_size-1)
+UCL <- penguin_mean + penguin_sd/sqrt(length(penguin_mass)) * qt(0.995, penguin_size-1)
+print(LCL)
+print(UCL)
+
+```
+
+```{r}
+adelie_mass <- penguins[penguins$species=="Adelie",]$body_mass_g
+adelie_mean <- mean(adelie_mass)
+adelie_sd <- sd(adelie_mass)
+adelie_size <- length(adelie_mass)
+
+LCL_adelie <- adelie_mean + adelie_sd/sqrt(length(adelie_mass)) * qt(0.005, adelie_size-1)
+UCL_adelie <- adelie_mean + adelie_sd/sqrt(length(adelie_mass)) * qt(0.995, adelie_size-1)
+print(LCL_adelie)
+print(UCL_adelie)
+
+```
+```{r}
+chinstrap_mass <- penguins[penguins$species=="Chinstrap",]$body_mass_g
+chinstrap_mean <- mean(chinstrap_mass)
+chinstrap_sd <- sd(chinstrap_mass)
+chinstrap_size <- length(chinstrap_mass)
+
+LCL_chinstrap <- chinstrap_mean + chinstrap_sd/sqrt(length(chinstrap_mass)) * qt(0.005, chinstrap_size-1)
+UCL_chinstrap <- chinstrap_mean + chinstrap_sd/sqrt(length(chinstrap_mass)) * qt(0.995, chinstrap_size-1)
+print(LCL_chinstrap)
+print(UCL_chinstrap)
+```
+```{r}
+gentoo_mass <- penguins[penguins$species=="Gentoo",]$body_mass_g
+gentoo_mean <- mean(gentoo_mass)
+gentoo_sd <- sd(gentoo_mass)
+gentoo_size <- length(gentoo_mass)
+
+LCL_gentoo <- gentoo_mean + gentoo_sd/sqrt(length(gentoo_mass)) * qt(0.005, gentoo_size-1)
+UCL_gentoo <- gentoo_mean + gentoo_sd/sqrt(length(gentoo_mass)) * qt(0.995, gentoo_size-1)
+print(LCL_gentoo)
+print(UCL_gentoo)
+```
+
+
+
+
+
+
+

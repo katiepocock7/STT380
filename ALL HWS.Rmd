@@ -1,0 +1,1464 @@
+---
+title: "ALL HWS"
+output: html_notebook
+---
+
+HW 1
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.	For 2 events A and B, the probability of A occurring is 0.50, and the probability of B occurring is 0.4. The probability of neither A nor B occurring is 0.4. 
+(a) What is the probability of A or B occurring?
+$$P(A \cup B) = 1 - P(~A \cap ~B) = 1 -0.4 =0.6 $$
+
+(b) What is the probability of A and B occurring?
+$$P(A \cap B) + P(A \cup B) = P(A)+P(B)$$
+$$P(A \cap B) = 0.5+0.4-0.6=0.3$$
+2. 2 6-sided dice are rolled (each with values 1, 2, 3, 4, 5, 6). The outcome of the roll is found by the difference between the larger and smaller numbers (so that if a 3 and 5 are rolled, the result is a 2, if a 5 and a 1 is rolled, the results is a 4, if the results is a 3 and a 3, the results is a 0, etc.) 
+a.	Find the sample space.
+$$S = \{ 0,1,2,3,4,5 \}$$
+b.	Find the probability that the result is a 1.
+$$P(1)=N(1)/N$$
+There are 10 ways to get a 1 (have to count both directions) out of 36, so answer is $10/36=5/18$
+
+c.	Create a simulation of 10,000 rolls of the 2 dice.  Calculate the difference, and find the proportion of rolls for which the result is a 1.  Does your result approximately agree with what you got in (b)?
+```{r HW1#2c, echo=TRUE}
+
+d1 <- sample(1:6, 10000, replace =TRUE)
+d2 <- sample(1:6, 10000, replace =TRUE)
+outcome <- abs(d1-d2)
+sum(outcome==1)/10000
+```
+This result approximately agrees with the answer in (b)
+
+3. In a certain game, 1 6-sided die is rolled and 2 coins are flipped. A person will win if the die rolls exactly the same value as the number of heads flipped. 
+a.	What is the probability of winning the game?
+
+Solution: two ways to win: 1 head and rolling a 1, or 2 heads and rolling a 2.
+P(1 head and rolling a 1) = 1/2 * 1/6 = 1/12
+P(2 heads and rolling a 2) = 1/4 *1/6 = 1/24
+Total: 1/12 + 1/24 = 1/8 = 0.125
+
+b.	Create a simulation of 10,000 plays of the game.  Does the number of wins approximately agree with (a)?
+```{r, echo=TRUE}
+win <- 0
+for(i in 1:10000){
+  head <- sample(c(0,1),2, replace =TRUE)
+  die <- sample(1:6,1)
+  win <- win + sum(sum(head)==die)
+  }
+win/10000
+```
+
+The result approximately matches the previous part.
+
+5(a)
+```{r, echo=TRUE}
+deMere1 <- function(){
+  win <- 0
+  x <- sample(1:6, 4, replace = TRUE)
+  if(sum(x==6) > 0){
+    win = 1
+  }
+  return(win)
+}
+deMere1()
+```
+
+b.
+```{r, echo=TRUE}
+deMere1WinProb <- function(numRep){
+  win <- 0
+  for(i in 1:numRep){
+    if(deMere1()==1){
+      win=win+1
+    }
+  }
+  prop <- win/numRep
+  return(prop)
+}
+
+deMere1WinProb(50000)
+```
+The result is slightly over 50%.
+
+
+c. 
+```{r, echo=TRUE}
+deMere2 <- function(){
+  sixes <- 0
+  for(i in 1:24){
+    die <- sample(1:6,2, replace = TRUE)
+    if(sum(die==6) == 2){
+      sixes = 1
+    }
+  }
+  return(sixes)
+}
+deMere2()
+```
+
+
+d.
+```{r, echo=TRUE}
+deMere2WinProb <- function(numRep){
+  win <- 0
+  for(i in 1:numRep){
+    if(deMere2()==1){
+      win=win+1
+    }
+  }
+  prop <- win/numRep
+  return(prop)
+}
+
+deMere2WinProb(50000)
+```
+The probability is slightly under 0.5.
+
+
+e.
+```{r, echo=TRUE}
+deMere1Wins <- replicate(50000,deMere1())
+```
+f. 
+```{r, echo=TRUE}
+val <- replicate(49991,0)
+cumul <- replicate(49991,0)
+for(i in 10:50000){
+  val[i] <- i
+  cumul[i] <- sum(deMere1Wins[1:i])/i
+}
+plot(9+val,cumul,type = "l")
+```
+
+g. 
+```{r, echo=TRUE}
+deMere2Wins <- replicate(50000,deMere2())
+val <- replicate(49991,0)
+cumul <- replicate(49991,0)
+for(i in 10:50000){
+  val[i] <- i
+  cumul[i] <- sum(deMere2Wins[1:i])/i
+}
+plot(9+val,cumul,type = "l")
+```
+(a) Answer: would guess that most likely answer is 0, since that's the result for getting 1/2 heads and 1/2 tails.
+
+b.
+```{r, echo=TRUE}
+lukeWinnings <- function(numRep){
+ winval <- replicate(numRep, 0)
+ for(i in 1:numRep){
+   samp <- sample(c(0,1), 40, replace = TRUE)
+   winval[i] <- sum(samp==1) - sum(samp==0)
+ }
+ pmf <- replicate(41,0)
+ score <- replicate(41,0)
+  for(i in 1:41){
+   score[i] <- 2*i - 42
+     pmf[i] <- sum(winval == score[i])/numRep
+  }
+ return(pmf)
+}
+Lukepmf <- lukeWinnings(100000)
+```
+
+
+(c)
+```{r, echo=TRUE}
+plot(2*1:41-42, Lukepmf, type = "l")
+```
+(d)
+My guess would be it is about 20 (but I would be wrong!)
+
+(e)
+```{r, echo=TRUE}
+tmp <- sample(c(0,1),40,replace = TRUE)
+runtotal <- 2*cumsum(tmp) - 1:40
+runtotal
+```
+
+(f) 
+```{r, echo=TRUE}
+leadDist <- function(numRep){
+  pmf <- replicate(41,0)
+  leads <- replicate(numRep,0)
+  for(i in 1:numRep){
+    tmp <- sample(c(0,1),40, replace = TRUE)
+    runtotal <- 2*cumsum(tmp) - 1:40
+    leads[i] = sum(runtotal>0)
+  }
+  for(i in 1:41){
+    pmf[i] = sum(leads == i - 1)/numRep
+  }
+  return(pmf)
+}
+leadpmf<-leadDist(1000000)
+```
+
+(g) 
+```{r, echo=TRUE}
+plot(0:40,leadpmf,type = "h")
+```
+
+
+
+
+
+
+
+
+
+
+
+HW 2
+
+
+1.	1.	A fair die is rolled 30 times.
+a.	What is the probability that exactly half of the rolls are even numbers?
+b.	What is the probability that more than 20 of the rolls are even numbers?
+c.	What is the probability that less than 5 of the rolls are greater than 4?
+```{r, echo=TRUE}
+
+# for (a)
+dbinom(15, 30, 0.5)
+
+# for (b)
+1 - pbinom(20,30, 0.5)
+
+# for (c)
+pbinom(4,30,1/3)
+```
+2.	A web server gets typically pinged according to a Poisson process with rate 30/second.
+a.	Find the probability that the server gets pinged between 20 and 40 times in a particular second.
+b.	Calculate the number of seconds in a year
+c.	Use (b) to estimate the maximum number of pings in a single second over the course of a year
+d.	Often a web server creates alerts when the ping rate is alarmingly high (typically, the sign of a Denial of Service attack by a hacker).  What would be a good rate to create such an alarm (and why)?
+
+```{r, echo=TRUE}
+# for (a)
+ppois(40, 30) - ppois(19, 30)
+
+# for (b)
+sec_year = 60*60*24*365
+sec_year
+# for (c)
+qpois(1-1/sec_year,30)
+# for (d)
+# will want a cutoff at least as large as (c).  Probably larger will be better, so 100 is a 
+# nice round number
+```
+3. The number of minutes that a bus is late is modeled by the Uniform density on the interval (0, 5).
+a.	Draw a picture of the density function.
+b.	What is the probability that the bus is more than 1 minute late?
+c.	What is the conditional probability that the bus is more than 4 minutes late, given that it is already 3 minutes late?
+
+```{r, echo=TRUE}
+# for (a)
+x <- seq(-1,6, by = 0.01)
+y <- dunif(x, 0, 5)
+plot(x,y, type = "l")
+
+# for (b)
+1 - punif(1,0,5)
+# can also answer geometrically that it should be 0.8
+
+# for (c)
+(1 - punif(4,0,5))/(1 - punif(3,0,5))
+# can also answer geometrically that it is 0.5
+```
+4.	Using the normal density with mean 50 cm and s.d. 5 cm as a model for the length of catfish in a lake, answer the following questions. Draw an appropriate picture of a normal density for each question. 
+a.	If a catfish is selected at random, what is the probability that it is more than 60 cm in length?
+b.	What is the length x such that exactly 10% of catfish are shorter than x?
+c.	What is the length y such that exactly 70% of catfish are longer than y
+
+
+```{r, echo=TRUE}
+# for (a)
+1 - pnorm(60,50,5)
+
+# for (b)
+qnorm(0.1,50,5)
+
+#for (c)
+qnorm(0.3, 50, 5)
+```
+5.	Let X  be a random variable with mean 80 and s.d. 10.
+a.	Compute P(70 < X < 90). (within 1 s.d. of mean)
+b.	Compute P(60 < X < 100). (within 2 s.d. of mean) 
+c.	Compute P(50 < X < 110). (within 3 s.d. of mean)
+d.	The relationships among normal densities suggest that you should get the same answers to these three questions no matter what the values of mean and s.d.. Verify that this is true by calculating the same three quantities, but this time for a standard normal distribution, i.e., a normal distribution with mean 0 and s.d 1.
+
+```{r, echo=TRUE}
+# for (a)
+pnorm(90,80,10) - pnorm(70,80,10)
+
+# for (b)
+pnorm(100,80,10) - pnorm(60,80,10)
+
+# for (c)
+pnorm(90,80,10) - pnorm(50,80,10)
+
+# for (d)
+pnorm(1,0,1) - pnorm(-1,0,1)
+pnorm(2,0,1) - pnorm(-2,0,1)
+pnorm(3,0,1) - pnorm(-3,0,1)
+```
+6.	A machine produces nails whose lengths are normally distributed with mean 2 inches and s.d. 0.05 inches. 
+a.	What proportion of nails are less than 1.9 inches in length? 
+b.	What proportion of nails are longer than 2.1 inches in length? 
+c.	What is the length x for which exactly 20% of the nails are longer than x? 
+d.	What is the length y for which exactly 20% of the nails are shorter than y?
+
+
+```{r, echo=TRUE}
+# for (a)
+pnorm(1.9 , 2, 0.05)
+
+# for (b)
+1 - pnorm(2.1, 2, 0.05)
+
+# for (c)
+qnorm(0.8 , 2, 0.05)
+
+# for (d)
+qnorm(0.2 , 2, 0.05)
+```
+7.	You are the data scientist at a pharmaceutical startup.  Over the next 4 years the startup is expected to discover new drugs at a random rate which can be fit as a Poisson process with a rate of 5/year.  Each drug thus discovered has an 8% chance of obtaining FDA approval.
+a.	Do 10,000 simulations of the number of drugs that will be discovered (irrespective of FDA approval).  Plot a histogram of the results.
+b.	Next, use those 10,000 simulations to determine the number of drugs which will survive FDA approval (1 simulation for each of the 10,000 simulations in (a)).  Plot a histogram of those results.
+c.	Each drug obtaining FDA approval will give the startup revenue which fits an exponential distribution with mean $10,000,000.  Use the simulations to model the amount of revenue, and then plot a histogram of the revenue results.
+d.	The R&D cost for the startup is $26,000,000.  Find the percent of simulation results for which the startup makes a profit.
+e.	You are asked to determine business strategy to determine whether more money should be spent on R&D or marketing.  If the money is spent on R&D, 20% more drugs will be discovered, so that drugs will be discovered at a rate of 6 per year instead of 5.  If the money is spent on marketing, the revenue for each drug will be increased by 20%, so that each drug’s revenue will fit an exponential distribution with parameter $12,000,000.  Which alternative will yield higher revenue on average for the startup?
+
+
+
+```{r, echo=TRUE}
+# for (a)
+drugs <- rpois(10000, 20)
+hist(drugs)
+```
+
+```{r, echo=TRUE}
+# for (b)
+approved <- replicate(10000,0)
+for(i in 1:10000){
+  approved[i] <- rbinom(1,drugs[i],0.08)
+}
+max(approved)
+hist(approved, breaks = 16)
+```
+
+```{r, echo=TRUE}
+# for (c)
+profit <- replicate(10000,0)
+for(i in 1:10000){
+  profit[i] <- sum(rexp(approved[i], 1/10000000))
+}
+hist(profit, breaks = 25)
+
+```
+
+```{r, echo=TRUE}
+# for (d)
+sum(profit > 26000000)/10000
+```
+
+```{r, echo=TRUE}
+# for (e)
+# alternative 1--drug development
+drugs1 <- rpois(1000000, 24)
+approved1 <- replicate(1000000,0)
+for(i in 1:1000000){
+  approved1[i] <- rbinom(1,drugs1[i],0.15)
+}
+profit1 <- replicate(1000000,0)
+for(i in 1:1000000){
+  profit1[i] <- sum(rexp(approved1[i], 1/10000000))
+}
+mean(profit1)
+
+# alternative 2--marketing
+drugs2 <- rpois(1000000, 20)
+approved2 <- replicate(1000000,0)
+for(i in 1:1000000){
+  approved2[i] <- rbinom(1,drugs2[i],0.15)
+}
+profit2 <- replicate(10000,0)
+for(i in 1:1000000){
+  profit2[i] <- sum(rexp(approved2[i], 1/12000000))
+}
+mean(profit2)
+# The answers are pretty much the same.
+# In reality, marketing is much cheaper than R&D, so it can yield similar profits at lower costs
+# Hence, all the drug ads you see.
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+HW 3
+
+1. For the following 4 discrete distributions, calculate the expected value and standard deviation in following two/ three ways. Compare to make sure you get approximately the same result for each.
+(i) create a simulation of 1,000,000 outcomes, and calculate the average and standard deviation of the outcomes;
+(ii) use the formulas for expected values and variance for standard distributions (for example, for binomial, E(X) = np); and
+iii) (for binomial distribution only) use sequences of the possible outcomes to generate the expected value and standard deviation.
+(a) binomial, 12 trials, p = 0.2
+```{r}
+sim<- rbinom(1000000,12,0.2)
+mean(sim)
+12*0.2
+
+sd(sim)
+(12*0.2*(1-0.2))^0.5
+
+sum((0:12) * dbinom(0:12, 12, 0.2))
+(sum((0:12)^2 * dbinom(0:12, 12, 0.2))-(sum((0:12) * dbinom(0:12, 12, 0.2)))^2)^0.5
+```
+
+(b) exponential, λ = 0.03
+```{r}
+sim <- rexp(1000000,0.03) 
+mean(sim)
+sd(sim) 
+1/0.03
+```
+
+(c) Poisson, rate = 0.4/minute, t = 20 minutes
+```{r}
+0.4*20
+mean(rpois(100000,0.4*20))
+sd(rpois(100000,0.4*20))
+(0.4*20)^0.5
+```
+
+(d) Uniform, interval = [0, 6]
+```{r}
+sim <- runif(1000000,0,6) 
+mean(sim)
+6/2 
+
+sd(sim) 
+6/(12)^0.5
+```
+
+
+
+
+
+2. You are a manager for product development. You have a $500,000 budget to spend on research for a new product. There are two products you can research:
+(i) Product 1 has a 30% chance of producing a successful prototype. If a prototype is created, it has an 80% chance of making it to market. If the product makes it to market, the amount of sales it will produce is modeled as an exponential distribution with mean value $9,000,000.
+(ii) Product 2 has a 60% chance of producing a successful prototype. If a prototype is created, it has an 90% chance of making it to market. If the product makes it to market, the amount of sales it will produce is modeled as a uniform distribution between $2,000,000 and $8,000,000. However, if successful, there is a 30% chance that the company will be successfully sued for patent infringement, in which case, the company will lose $1 and $3,000,000 (according to a uniform distribution).
+(a) Calculate the expected value of the alternatives and determine whether you should give the go-ahead for the development of product 1 or product 2
+```{r}
+product_1 <- 0.3 * 0.8 * 9000000
+product_1
+product_2 <- 0.6*0.9*(6000000) - 0.6*0.3*(3000001)
+product_2
+```
+product 2
+
+(b) Create a simulation for two products, with 1,000,000 runs. Confirm that the average value of the simulation is about equal to what you calculated for the alternatives in (a). For percent of the simulations do you at least make your money back for the development?
+```{r}
+product1_sim <- rbinom(1000000,1,0.3)*rbinom(1000000,1,0.8)*rexp(1000000,1/9000000)
+mean(product1_sim)
+ 
+
+product2_sim <- rbinom(1000000,1,0.6)*rbinom(1000000,1,0.9)*(runif(1000000,2000000,8000000)-rbinom(sims,1,0.3)*runif(sims,1, 3000000))
+mean(product2_sim)
+```
+Yes!
+
+
+(c) For what percent of simulations do you make more money for Product 1 vs. Product 2?
+```{r} 
+sum(product1_sim > product2_sim)/length(product1_sim)
+
+```
+
+(d) Suppose the company needs the revenue to pay off a $7 million loan. Which alternative is more likely to produce more than $7,000,000 in revenue?
+```{r}
+sum(product1_sim>=7000000)/length(product1_sim)
+sum(product2_sim>=7000000)/length(product2_sim)
+```
+product 1
+
+
+3. Define a multivariate normal distribution with mean value = (-1, 2), var(X) = 1, var(Y) = 2, and the correlation of X and Y = -0.3. Plot this distribution, by
+(a) Creating a contour plot of the pdf, and
+```{r}
+library(mvtnorm)
+min <- -4
+max <- 6
+var_x <- 1.0
+var_y <- 2.0
+cor_xy <- -0.3
+Sigma <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- seq(min, max, by = 0.1)
+y <- seq(min, max, by = 0.1)
+z <- matrix(nrow=length(x), ncol=length(y))
+co_df <- data.frame('x', 'y', 'z')
+for (i in 1:length(x)){
+  for (j in 1:length(y)){
+    z[i,j] <- dmvnorm(c(x[i],y[j]),c(-1,2),Sigma)
+  }
+}
+contour(x, y, z)
+
+co_df <- data.frame('x' = x, 'y' = y)
+df.grad <- expand.grid(x = seq(-4,4, by = 0.1),y = seq(-4,4, by = 0.1))
+dens <- cbind(df.grad, z = dmvnorm(df.grad,c(0,0), Sigma))
+```
+
+(b) Simulate the distribution 1,000 times and plot the simulated points.
+```{r}
+library(MASS)
+plot(mvrnorm(1000, mu = c(-1,2), Sigma))
+
+```
+
+(c) Next, using a larger simulation of the same distribution (1,000,000 values), estimate
+```{r}
+sim <- mvrnorm(1000000, mu = -c(-1,2), Sigma)
+x <- sim[,1]
+y <- sim[,2]
+```
+(i) E(X)
+```{r}
+e_x <-sum(x)/length(x)
+e_x
+```
+(ii) E(Y)
+```{r}
+e_y <-sum(y)/length(y)
+e_y
+```
+(iii) Var(X) and Var(Y)
+```{r}
+var_x2 <- (sum(x^2)/length(x^2)) - e_x^2
+var_x2
+var_y2 <- (sum(y^2)/length(y^2)) - e_y^2
+var_y2
+```
+
+(iv) E(X + Y) and Var(X + Y). Compare the result to what the results of the formulas for
+linear combinations of random variables.
+```{r}
+mean(x+y)
+mean(x)+mean(y)
+var(x+y)
+var(x) + var(y) +2*cov(x,y)
+```
+
+(v) E(X|Y = 3)
+```{r}
+e <- 0.1
+mean(x[y<(3+e) & y>(3-e)])
+```
+
+
+
+
+
+4. Suppose we have an exponential probability distribution with parameter λ = 1/3, so that its expected value is 3. We will perform some simulation experiments to determine the behavior of the sample mean.
+(a) Generate 2,000 simulations which each constitute 100 outcomes of this distribution. Calculate the mean values for the 2,000 experiments.
+```{r}
+sim <- numeric(2000) 
+for(i in (1:2000)){
+   sim[i] <- mean(rexp(100, 1/ 3))
+}
+```
+
+(b) Next, calculate the mean value and variance for the 2,000 sample means.
+```{r}
+mean(sim)
+var(sim)
+```
+
+(c) Repeat (a) and (b) for N = 1,000, 10,000, 100,000, and 1,000,000 outcomes (2,000 simulations of each). Note: 1,000,000 could take several minutes. N Mean of Sample Means Variance of Sample Means
+100
+1,000
+10,000
+100,000
+1,000,000
+```{r}
+N <- 100
+sim_100 <- numeric(2000) 
+
+for(i in 1:2000){
+  sim_100[i] <- mean(rexp(N,1/3))
+}
+
+N2 <- 1000
+sim_1000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_1000[i] <- mean(rexp(N2,1/3))
+}
+
+N3 <- 10000
+sim_10000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_10000[i] <- mean(rexp(N3,1/3))
+}
+
+N4 <- 100000
+sim_100000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_100000[i] <- mean(rexp(N4,1/3))
+}
+
+N5 <- 1000000
+sim_1000000 <- numeric(2000) 
+for(i in 1:2000){
+  sim_1000000[i] <- mean(rexp(N5,1/3))
+}
+
+```
+
+```{r}
+print(mean(sim_100))
+print(mean(sim_1000))
+print(mean(sim_10000))
+print(mean(sim_100000))
+print(mean(sim_1000000))
+```
+
+
+```{r}
+print(var(sim_100))
+print(var(sim_1000))
+print(var(sim_10000))
+print(var(sim_100000))
+print(var(sim_1000000))
+
+```
+
+
+
+(d) Plot the log(Variance) vs. log(N). Do you get something which is close to a straight line? What is the slope? Does the relationship between N and the variance close to what you would expect with the Central Limit Theorem?
+```{r}
+vars <- numeric(5)
+vars[1] <- var(sim_100)
+vars[2] <- var(sim_1000)
+vars[3] <- var(sim_10000)
+vars[4] <- var(sim_100000)
+vars[5] <- var(sim_1000000)
+
+plot(log(c(100,1000,10000,100000,1000000)),log(vars), type="l")
+```
+
+
+```{r}
+lm(log(vars) ~ log(c(100,1000,10000,100000,1000000)))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+HW 4
+
+1. Load the penguins dataset available in D2L. Produce a pairs plot with ggpairs, colored by
+species. Then use the pairs plot to answer the following questions.
+```{r}
+penguins <- read.csv('Downloads/penguins.csv')
+library(GGally)
+ggpairs(penguins, mapping=ggplot2::aes(colour = species))
+```
+
+a. Which species has the most members in the dataset?
+    Adelie
+b. Which other variable has the highest correlation with body mass (for the overall
+dataset)?
+    Flipper length
+c. For Adelie, which other variable has the highest correlation with body mass?
+    Bill depth
+d. For each field, which species have similar values according to the histogram?
+    Bill length: chinstrap and gentoo
+    Bill depth: chinstrap adn adelie
+    Flipper length: chinstrap and adelie
+    Body mass: chinstrap and adelie 
+
+2. Take the function f(x, y, z) = x2 – 3x + y4 – 3y + z2 + 10z + cos(xyz). Find the location of the minimum value. Use c(0, 0 ,0) as the initialization location. Try different initialization locations. Can you find different locations for minima? If you see multiple ones, which one seems to be a global minimum?
+```{r}
+fm <- function(x) x[1]^2 - 3*x[1] + x[2]^4 - 3*x[2] + x[3]^2 + 10*x[3] + cos(x[1]*x[2]*x[3])
+
+print(optim(c(0,0,0),fm))
+```
+so the location of the minimum value is (0.9586131,0.7348568,-4.8938219)
+```{r}
+min_vals <- c()
+for (i in seq(-10,10,1)){
+  for (j in seq(-10,10,1)){
+    for (k in seq(-10,10,1)){
+      min_vals <- append(min_vals, optim(c(i,j,k),fm)$value)
+    }
+  }
+}
+summary(min_vals)
+min_val <- min(min_vals)
+min_val
+
+```
+
+```{r}
+optim(c(10,10,-10),fm)[1:2]
+
+```
+so the minimum value of -30.12827 is at point c(10,10,-10) and would be the global minimum within the boundaries of -10 to 10 of x,y,z values.
+
+3. One the interval [1, ∞] a probability distribution is defined as p(x) = /x(+1) . Given the sample {2, 3, 2.5, 3, 1.6, 1.4, 1.3, 1.8, 1.9, 2.4, 4.6}, find the log-likelihood, and then calculate the maximum likelihood estimate for the parameter . (Hint: the likelihood function will look very similar to what we had in ICA 14, #2)
+```{r}
+samp <- c(2, 3, 2.5, 3, 1.6, 1.4, 1.3, 1.8, 1.9, 2.4, 4.6)
+log_likelyhood <- function(a) length(sample) * log(a) - (a+1) * sum(log(samp))
+
+optimize(log_likelyhood,c(1,100),maximum = TRUE)
+
+```
+so the max : 1.000045
+
+
+
+4. The beta distribution on the interval 0 < x < 1 has the form Where  is the gamma function. The two parameters α and β are positive constants. Fortunately, you do not need to use this messy expression, since R has a function to express the probability density: p(x) = dbeta(x, alpha, beta) 
+a. Take the sample data in D2L called beta_samp.csv. Construct the log-likelihood function using dbeta.
+```{r}
+beta_samp <- read.csv('Downloads/beta_samp.csv')
+beta_samp
+
+p_x <- function(para) (-1)*sum(log(dbeta(beta_samp$x, para[1],para[2])))
+#?dbeta()
+```
+
+b. Use the optim function in R to find the maximum likelihood estimate for the parameters.
+```{r}
+optim(c(1,1),p_x)
+```
+So alpha = 2.97645 and beta = 4.94619
+
+c. Graph the beta distribution for the given parameters between 0 < x < 1.
+```{r}
+beta = seq(0,1,0.01)
+plot(beta, dbeta(beta, 2.97645,4.94619), type = 'l')
+```
+
+
+
+5. With the penguins dataset, construct a 99% two-sided confidence interval for the mean value for body mass with the t-distribution. Then do the same for each species individually.
+```{r}
+penguin_mass <- penguins$body_mass_g
+penguin_mean <- mean(penguin_mass)
+penguin_sd <- sd(penguin_mass)
+penguin_size <- length(penguin_mass)
+
+LCL <- penguin_mean + penguin_sd/sqrt(length(penguin_mass)) * qt(0.005, penguin_size-1)
+UCL <- penguin_mean + penguin_sd/sqrt(length(penguin_mass)) * qt(0.995, penguin_size-1)
+print(LCL)
+print(UCL)
+
+```
+
+```{r}
+adelie_mass <- penguins[penguins$species=="Adelie",]$body_mass_g
+adelie_mean <- mean(adelie_mass)
+adelie_sd <- sd(adelie_mass)
+adelie_size <- length(adelie_mass)
+
+LCL_adelie <- adelie_mean + adelie_sd/sqrt(length(adelie_mass)) * qt(0.005, adelie_size-1)
+UCL_adelie <- adelie_mean + adelie_sd/sqrt(length(adelie_mass)) * qt(0.995, adelie_size-1)
+print(LCL_adelie)
+print(UCL_adelie)
+
+```
+```{r}
+chinstrap_mass <- penguins[penguins$species=="Chinstrap",]$body_mass_g
+chinstrap_mean <- mean(chinstrap_mass)
+chinstrap_sd <- sd(chinstrap_mass)
+chinstrap_size <- length(chinstrap_mass)
+
+LCL_chinstrap <- chinstrap_mean + chinstrap_sd/sqrt(length(chinstrap_mass)) * qt(0.005, chinstrap_size-1)
+UCL_chinstrap <- chinstrap_mean + chinstrap_sd/sqrt(length(chinstrap_mass)) * qt(0.995, chinstrap_size-1)
+print(LCL_chinstrap)
+print(UCL_chinstrap)
+```
+```{r}
+gentoo_mass <- penguins[penguins$species=="Gentoo",]$body_mass_g
+gentoo_mean <- mean(gentoo_mass)
+gentoo_sd <- sd(gentoo_mass)
+gentoo_size <- length(gentoo_mass)
+
+LCL_gentoo <- gentoo_mean + gentoo_sd/sqrt(length(gentoo_mass)) * qt(0.005, gentoo_size-1)
+UCL_gentoo <- gentoo_mean + gentoo_sd/sqrt(length(gentoo_mass)) * qt(0.995, gentoo_size-1)
+print(LCL_gentoo)
+print(UCL_gentoo)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HW 5
+
+1. In the car_multi.csv file, there is a field called acceleration. Calculate
+a. The mean value
+b. The standard deviation
+c. The 5th and 95th quantile
+```{r}
+carsm <- read.csv("cars_multi.csv")
+mean(carsm$acceleration)
+sd(carsm$acceleration)
+quantile(carsm$acceleration,c(0.05,0.95))
+```
+
+2. For this acceleration field, assuming it is normally distributed, conduct a hypothesis test at the 95% confidence level to determine whether you can say the mean value is greater than 15.2. State the null hypothesis. Conduct the hypothesis test by
+    - null hypothesis: the mean value less than or equal to 15.2. 
+a. Constructing an appropriate confidence interval
+b. Calculating a p-value, both by
+i. Analytically
+ii. Running an appropriate simulation
+```{r}
+macc <- mean(carsm$acceleration)
+acc_se <- sd(carsm$acceleration)/sqrt(length(carsm$acceleration))
+LCL <- macc + acc_se*qt(0.05,length(carsm$acceleration) - 1)
+LCL
+```
+Since the lower confidence limit is greater than 15.2, we can say at 95% confidence that the mean value is
+greater than 15.2
+```{r}
+pt((15.2-macc)/acc_se,length(carsm$acceleration) - 1)
+```
+The p-value is 0.004. Since this is less than 0.05, we can say at 95% confidence that the mean value is greater than 15.2
+```{r}
+sim <- 10000
+n <- length(carsm$acceleration)
+mn <- rep(0, sim)
+1
+for(i in 1:sim){
+samp <- 15.2 + sd(carsm$acceleration) * rt(n, n - 1)
+mn[i] = mean(samp)
+}
+p_val <- sum(mn > mean(carsm$acceleration))/sim
+p_val
+```
+The p-value is 0.0038. Since this is less than 0.05, we can say at 95% confidence that the mean value is
+greater than 15.2
+
+
+
+3. A Poisson process generates the following data: {3, 5, 6, 7, 10, 4, 5, 6, 4, 3}, covering 2 second intervals. Run a Monte Carlo simulation to test the hypothesis at a 95% confidence that the rate parameter is greater than 2.
+  null hypothesis: the rate parameter is greater than 2. one-sided
+```{r}
+sim <- 10000
+sampmean <- mean(c(3, 5, 6, 7, 10, 4, 5, 6, 4, 3))
+n <- 10
+mn <- rep(0, sim)
+for(i in 1:sim){
+samp <- rpois(10, 2*2)
+mn[i] = mean(samp)
+}
+p_val <- sum(mn > sampmean)/sim
+p_val
+```
+Since the simulated p-value is less than 0.05, we can say at a 95% confidence that the rate parameter is
+greater than 2
+
+
+4. For the 4 values you calculated in #1, construct 95% confidence intervals using
+a. Regular bootstrapping
+```{r}
+# regular bootstrapping
+data <- carsm$acceleration
+sim <- 10000
+mn <- rep(0,10000)
+accsd <- rep(0,10000)
+acc_5 <- rep(0,10000)
+acc_95 <- rep(0,10000)
+for(i in 1:sim){
+samp <- sample(data, length(data), replace = TRUE)
+mn[i] <- mean(samp)
+accsd[i] <- sd(samp)
+acc_5[i] <- quantile(samp, 0.05)
+acc_95[i] <- quantile(samp, 0.95)
+}
+quantile(mn,c(0.025,0.975))
+quantile(accsd,c(0.025,0.975))
+quantile(acc_5,c(0.025,0.975))
+quantile(acc_95,c(0.025,0.975))
+```
+b. Bayesian bootstrapping
+```{r}
+# Bayesian bootstrapping
+library(DirichletReg)
+data <- carsm$acceleration
+sim <- 10000
+mn <- rep(0,10000)
+accsd <- rep(0,10000)
+acc_5 <- rep(0,10000)
+acc_95 <- rep(0,10000)
+for(i in 1:sim){
+weight <- rdirichlet(1, rep(1,length(data)))
+samp <- sample(data, length(data), prob = weight, replace = TRUE)
+mn[i] <- mean(samp)
+accsd[i] <- sd(samp)
+acc_5[i] <- quantile(samp, 0.05)
+acc_95[i] <- quantile(samp, 0.95)
+}
+quantile(mn,c(0.025,0.975))
+quantile(accsd,c(0.025,0.975))
+quantile(acc_5,c(0.025,0.975))
+quantile(acc_95,c(0.025,0.975))
+```
+
+
+
+
+5. Import the data in the dataset called “longtail.csv.”  Calculate the standard deviation and the 0.99th quantile. Then create 95% confidence intervals for these two quantities, using both regular and Bayesian bootstrapping. Describe what you see with these results.
+```{r}
+longtail <- read.csv("longtail.csv")$x
+sd(longtail)
+quantile(longtail, 0.99)
+```
+
+```{r}
+# regular bootstrapping
+data <- longtail
+sim <- 10000
+lt_sd <- rep(0,10000)
+lt_99 <- rep(0,10000)
+for(i in 1:sim){
+samp <- sample(data, length(data), replace = TRUE)
+lt_sd[i] <- sd(samp)
+lt_99[i] <- quantile(samp, 0.99)
+}
+quantile(lt_sd,c(0.025,0.975))
+quantile(lt_99,c(0.025,0.975))
+
+
+
+# Bayesian bootstrapping
+library(DirichletReg)
+data <- longtail
+sim <- 10000
+lt_sd <- rep(0,10000)
+lt_99 <- rep(0,10000)
+for(i in 1:sim){
+weight <- rdirichlet(1, rep(1,length(data)))
+samp <- sample(data, length(data), prob = weight, replace = TRUE)
+lt_sd[i] <- sd(samp)
+lt_99[i] <- quantile(samp, 0.99)
+}
+quantile(lt_sd,c(0.025,0.975))
+quantile(lt_99,c(0.025,0.975))
+```
+
+
+
+6. #1, page 22, Bayesian Inference - 1. Let’s return to your game of ping-pong. Your friend thinks the possible values for 𝜃, your long-term probability of winning, are 0.4, 0.5, and 0.6, with probabilities 0.2, 0.6, and 0.2, respectively. Suppose you win four games out of five.
+```{r}
+# for entire dataset
+theta <- c(0.4,0.5,0.6)
+prior <- c(0.2,0.6,0.2)
+wins <- 4
+loss <- 1
+lik <- thetaˆwins*(1-theta)ˆloss
+4
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+exp_prior <- sum(theta*prior)
+exp_post <- sum(theta*post)
+exp_prior
+exp_post
+```
+The probability of winning 60% of games is 0.322 or 32.2%. We can see that the expected value increased,
+which makes sense, since the proportion of games won is greater than the expected value of the prior
+
+
+7. #3, page 22-23, Bayesian Inference - Suppose the possible values of 𝜃 = your chances of winning a game of tennis are 0, 0.1, ..., 1, with equal probabilities.
+a. Fill out the rest of this table if you win four games out of seven
+```{r}
+theta <- seq(0,1,by=0.1)
+prior <- rep(1/11,11)
+wins <- 4
+loss <- 3
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+exp_prior <- sum(theta*prior)
+exp_post <- sum(theta*post)
+exp_prior
+exp_post
+```
+
+b. Give a sentence interpreting the posterior probability for theta = 0.3. The probability of winning 30%
+of games is now 0.078, or 7.8%
+c. Find the prior expected value of 𝜃 and the posterior expected value of 𝜃. Write a sentence comparing these two quantities and why their difference makes sense in light of winning 4 games out of 7.
+d. Suppose you play another six games and you win five of them. Compute a new posterior distribution for 𝜃, your likelihood of winning, using the posterior probabilities from (a) as your new prior.
+```{r}
+prior <- post
+wins <- 5
+loss <- 1
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+```
+
+e. Compute the posterior probabilities by considering the data all together (i.e., by considering 13 games of which you won 9). Write 1-2 sentences comparing this posterior distribution with the one you found in (d).
+```{r}
+theta <- seq(0,1,by=0.1)
+prior <- rep(1/11,11)
+wins <- 9
+loss <- 4
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+```
+We can see that we got the same result as when we did the 2 chunks of wins sequentially.
+
+
+
+
+
+
+
+
+
+
+
+HW 6
+
+1. A person playing a game has a prior belief of their probability of winning the game as a Beta(2,6) distribution. The person plays 20 games, with the results as follows: WWLLLWLWLWLWLWWLWLLL
+a. Construct the posterior distribution after each game
+```{r}
+results <- c(1,1,0,0,0,1,0,1,0,1,0,1,0,1,1,0,1,0,0,0) 
+prior <- c(2,6)
+posterior <- prior
+for(i in results){
+   posterior[1] = posterior[1] + i
+   posterior[2] = posterior[2] + (1 - i)
+ }
+posterior
+```
+b. Compare the expected value and standard deviations of the prior to the final posterior.
+```{r}
+expected_val <- function(dist){
+  dist[1]/(dist[1] + dist[2])
+}
+standard_d <- function(dist){ 
+  sqrt((dist[1]*dist[2])/((dist[1]+dist[2])^2 * (dist[1]+dist[2]+1)))
+}
+
+expected_val(prior)
+expected_val(posterior)
+standard_d(prior) 
+standard_d(posterior)
+```
+
+From our results; the prior expected value is greater than the posterior while the prior standard deviation is less than the posterior.
+
+c. Calculate a 90% 2-sided confidence interval for both the prior and posterior.
+```{r}
+qbeta(c(.05, .95), prior[1], prior[2])
+qbeta(c(.05, .95), posterior[1], posterior[2])
+```
+d. Plot the final posterior distribution and the prior on the same graph.
+```{r}
+x <- seq(0,1, by = 0.01)
+plot(x,dbeta(x,posterior[1], posterior[2]), type="l", col = "blue")
+lines(x,dbeta(x,prior[1], prior[2]))
+
+```
+
+2. Take a game where 2 players take turns. Each player, when it is their turn, has a 20% chance of winning the game. There are 4 states: (1) It is player 1’s turn;  (2) it is player 2’s turn; (3) player 1 has won the game; and (4) player 2 has won the game. We can consider this with a transition matrix.
+a. What is the 4x4 transition matrix for this game?
+```{r}
+P <- cbind(c(0,0.8,0.2,0),c(0.8,0,0,0.2), c(0,0,1,0), c(0,0,0,1)) 
+P
+```
+b. What is the state after 5 turns? What is the probability that the game has ended by that point?
+```{r}
+b <- c(1,0,0,0)
+for(i in 1:5){
+b <- P%*%b
+}
+print(b)
+print(b[3] + b[4])
+
+```
+
+c. Consider a case where player 1 goes first. Run the action of the transition matrix many times to determine the probability that player 1 wins the game.
+```{r}
+b <- c(1,0,0,0)
+for(i in 1:10000){
+b <- P%*%b
+}
+
+print(b[3])
+```
+
+
+d. Consider the case where players flip a coin to go first. What is the initial state, in terms of probabilities of being in each state? Confirm that each player has a 50% chance of winning.
+```{r}
+b <- c(0.5,0.5,0,0)
+for(i in 1:10000){
+b <- P%*%b
+}
+
+print(b)
+print(b[3])
+
+print(b[4])
+
+```
+
+e. Suppose in a modified game that player 1 is a bit better than player 2, so that player 1 has a 25% chance winning of their turn (player 2 still has a 20% chance). What is the transition matrix? Consider the initial state from (d). What is the probability of player 1 winning?
+```{r}
+P2 <- cbind(c(0,0.75,0.25,0),c(0.8,0,0,0.2),c(0,0,1,0), c(0,0,0,1))
+print(P2)
+b <- c(0.5,0.5,0,0)
+for(i in 1:10000){
+b <- P2%*%b
+}
+
+b[3]
+```
+
+3. Bayesian Inference, page 61. #1 - 1. For each MCMC simulation scenario described below, sketch by hand what a single chain trace plot might look like for each simulation.
+a. The chain is mixing too slowly.
+b. The chain has high correlation.
+c. The chain has a tendency to get ‘stuck.’
+
+4. Bayesian Inference, page 61. #1 (not a typo) - 1. Below are examples of “chains” 𝜃[(1)], 𝜃[(2)], ..., 𝜃[(𝑘)], for different parameters. For each example, determine whether the given chain is a Markov chain. Explain:
+a. You go out to eat N nights in a row and 𝜃[(𝑖)] is the probability you go to a Thai restaurant on day 𝑖.
+     - Yes the given chain is a markov chain. Since the chance that I go to eat at a thai restaurant depends on the amount of N nights in a row i went out to eat days prior to the thai night it would be evolving in a markov system.
+     
+b. You play the lottery N nights in a row and 𝜃[(𝑖)] is the probability you win the lottery on day 𝑖.
+     - The given chain is not a Markov chain. Since the probability of me winning the lottery is an independent probability it would not result in a markov chain. 
+     
+c. You play your roommate in checkers N times in a row and 𝜃[(𝑖)] is the probability you win game 𝑖.
+    - The given chain is not a Markov chain. The probability of me winning the game is independent of the other games so it would not result in a markov chain.
+
+
+5. Bayesian Inference, page 61. #1 (not a typo) - 1. Consider the Beta-Binomial model fr 𝜃 with 𝑋|𝜃 ∼ 𝐵𝑖𝑛𝑜𝑚(𝜃, 𝑛) and 𝜃 ∼ 𝐵𝑒𝑡𝑎(3, 8). Suppose that in 𝑛 = 10 indepednet trials, you observe 𝑌 = 2 successes.
+a. Simulate the posterior model of 𝜃 with RStan using 3 chains and 12,000 interations per chain.
+```{r}
+library(rstan)
+library(bayesplot)
+library(dplyr)
+library(StanHeaders)
+
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 10> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(10, theta);
+theta ~ beta(3,8); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 2), #2 wins
+                      chains = 3,
+                      iter = 6000*2, 
+                      seed=12345)
+
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+```
+
+
+b. Produce trace plots for each of the three chains.
+```{r}
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+```
+
+```{r}
+chains <- as.array(sim.posterior)
+
+chain1 <- chains[,,1][,1]
+chain2 <- chains[,,1][,2]
+chain3 <- chains[,,1][,3]
+plot(chain1, type = "l", lwd = 0.1,  main = "Chain1")
+plot(chain2, type = "l", lwd = 0.1,  main = "Chain2")
+plot(chain3, type = "l", lwd = 0.1,  main = "Chain3")
+
+```
+
+c. What is the range of values on the trace plot x-axis? Why is the maximum value of this range not 12,000?
+- the range is (0,6000). The maximum value is not 12,000 because that is the number of iterations total but the function has burnoff such that half of the values are not plotted. 
+
+d. Create density plots for the values of each of the three chains.
+```{r}
+plot(density(chain1), main = "Chain1 density")
+plot(density(chain2), main = "Chain2 density")
+plot(density(chain3), main = "Chain3 density")
+
+```
+
+e. Use the Beta-Binomial conjugate model to now specify the posterior distribution of 𝜃. How does your MCMC approximation compare to the analytically-derived model?
+```{r}
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 5,16), #calculated by beta(post) = beta(prior) +losses. and alpha(post) = alpha(prior)+wins
+                col = "black",size = 2)
+```
+
+6. A linear regression model prediction is in the form of y = 2.18 x1 – 4.56x2. The regression was run on 18 data points. The root mean square error of the residuals is 0.856.
+a. What is the E(y | (x1,x2) = (2, -3))?
+```{r}
+E <- 2.18*(2) + -4.56*(-3)
+E
+```
+b. What is the probability that y > 20, given that (x1,x2) = (2, -3)?
+```{r}
+sigma <- 0.856
+prob <- 1-pt((20-E)/sigma, 18-2)
+prob
+```
+
+
+
+
+
+
+
+
+
+
+
+HW 7
+
+1. Take the Boston dataset, available in D2L. This data has information about different neighborhoods in Boston, and we will use it to predict the median housing price for the neighborhoods. Here is an explanation of the variables:
+CRIM: Per capita crime rate by town
+ZN: Proportion of residential land zoned for lots over 25,000 sq. ft
+INDUS: Proportion of non-retail business acres per town
+CHAS: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+NOX: Nitric oxide concentration (parts per 10 million)
+RM: Average number of rooms per dwelling
+AGE: Proportion of owner-occupied units built prior to 1940
+DIS: Weighted distances to five Boston employment centers
+RAD: Index of accessibility to radial highways
+TAX: Full-value property tax rate per $10,000
+PTRATIO: Pupil-teacher ratio by town
+B: 1000(Bk — 0.63)², where Bk is the proportion of [people of African American descent] by town
+LSTAT: Percentage of lower status of the population
+MEDV: Median value of owner-occupied homes in $1000s
+
+(a) Create a pairs plot with ggpairs for the data. 
+```{r}
+library(GGally)
+boston <- read.csv('Boston.csv')
+#ggpairs(boston[3:16])
+head(boston)
+```
+The chas variable is the one categorical variable here. It appears to be inbalanced, as it is much more likely to be a 0 than 1
+
+(b) Which other variable correlates the strongest with medv? Note that strongest mean largest absolute value, whether it’s positive or negative.
+```{r}
+cor(boston[3:16])[14,]
+```
+From this chart, it is lstat that correlates most strongly with medv.
+
+
+(c) Build a simple linear regression model with that variable as the x, with
+a. Constructing the normal equations ATAx = ATb, and solving for the coefficient vector x.
+b. Using lm. Do the coefficients agree
+```{r}
+A <- cbind(1,boston$lstat)
+b <- as.matrix(boston$medv)
+x <- solve(t(A)%*%A)%*%t(A)%*%b
+x
+```
+
+```{r}
+summary(lm(data = boston, medv~lstat))
+```
+they agree
+
+
+(d) Next, build a linear regression model with the 2 other variables in addition that correlate most strongly with medv, using lm (so 3 variables total).
+a. How do the adjusted R-squared values compare between the models?
+b. Comment on the significance of the coefficients
+```{r}
+summary(lm(data = boston, medv~lstat+rm+ptratio))
+```
+
+The coefficients are significant, from looking at the t values and Pr(>|t|). The R-squared value and errors
+decreased significantly, so this overall is a good model. We would expect lstat to have a negative coefficient, as the house values should increase with the lower proportion of people of lower income.
+
+For the multicollinearity,
+```{r}
+cor(boston$rm,boston$lstat)
+cor(boston$rm,boston$ptratio)
+cor(boston$ptratio,boston$lstat)
+```
+The one that appears highest is between rm and lstat. We might therefore eliminate rm and use something
+else instead, although it is not necessary. For example:
+```{r}
+summary(lm(data = boston, medv~lstat+chas+ptratio))
+```
+For the sensitivity analysis of the previous model, we get the following
+```{r}
+bos_mod <- lm(data = boston, medv~lstat+rm+ptratio)
+lstat_sens <- bos_mod$coefficient[2]*sd(boston$lstat)
+rm_sens <- bos_mod$coefficient[3]*sd(boston$rm)
+ptratio_sens <- bos_mod$coefficient[4]*sd(boston$ptratio)
+sm <- abs(lstat_sens)+abs(rm_sens)+abs(ptratio_sens)
+lstat_sens<-lstat_sens/sm
+rm_sens<-rm_sens/sm
+ptratio_sens<-ptratio_sens/sm
+barplot(c(ptratio_sens,rm_sens,lstat_sens), horiz = T)
+```
+
+With chas, we get
+```{r}
+summary(lm(data = boston, medv~lstat+rm+ptratio+chas))
+```
+
+All variables are significant. The chas is a categorical variable (even though it’s coded as numerical). It
+predicts a higher value by 3.4371 for being along the Charles River
+
+
+(e) Now, re-do the regression from (c), except this time
+a. Split the data into training and testing datasets (70/30 split)
+b. Build the model on the training dataset
+c. Use the model to predict values for the test dataset
+d. How do the results compare, in terms of RMSE?
+    they are the same!
+```{r}
+split_pct <- 0.7
+n <- length(boston$medv)*split_pct # train size
+row_samp <- sample(1:length(boston$medv), n, replace = FALSE)
+train <- boston[row_samp,]
+test <- boston[-row_samp,]
+bos_train_mod <- lm(data = train, medv~lstat)
+test_pred <- predict(bos_train_mod,test)
+test_error <- test$medv - test_pred
+rmse_train <- sqrt(mean(bos_train_mod$residuals**2))
+rmse_test <- sqrt(mean(test_error**2))
+rmse_train
+rmse_test
+```
+We can see that the errors are comparable, an indication that this is a good model.
+    
+    
+(f) For the model in (d), what are the 95% confidence intervals for the parameters, according to the t-values?
+```{r}
+#for intercept
+bos_mod$coefficients[1]+summary(bos_mod)$coefficients[1,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+#for others
+bos_mod$coefficients[2]+summary(bos_mod)$coefficients[2,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+bos_mod$coefficients[3]+summary(bos_mod)$coefficients[3,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+bos_mod$coefficients[4]+summary(bos_mod)$coefficients[4,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+```
+
+
+(g) For the model in (d), what are the 95% confidence intervals for the parameters, using
+a. regular bootstrapping, and
+```{r}
+# regular bootstrap
+coeff1 <- rep(0, 100)
+coeff2 <- rep(0, 100)
+coeff3 <- rep(0, 100)
+coeff4 <- rep(0, 100)
+for(i in 1:100){
+n <- length(boston$medv)
+row_samp <- sample(1:n, n, replace = TRUE)
+bos_samp <- boston[row_samp,]
+6
+temp_mod <- lm(data = bos_samp, medv~lstat+rm+ptratio)
+coeff1[i] <- temp_mod$coefficients[1]
+coeff2[i] <- temp_mod$coefficients[2]
+coeff3[i] <- temp_mod$coefficients[3]
+coeff4[i] <- temp_mod$coefficients[4]
+}
+quantile(coeff1, c(0.025, 0.975))
+quantile(coeff2, c(0.025, 0.975))
+quantile(coeff3, c(0.025, 0.975))
+quantile(coeff4, c(0.025, 0.975))
+```
+
+b. Bayesian bootstrapping?
+```{r}
+# For Bayesian Bootstrapping
+library(DirichletReg)
+
+coeff1 <- rep(0, 100)
+coeff2 <- rep(0, 100)
+coeff3 <- rep(0, 100)
+coeff4 <- rep(0, 100)
+for(i in 1:100){
+n <- length(boston$medv)
+weight <- rdirichlet(1, rep(1,n))
+row_samp <- sample(1:n, n, prob = weight, replace = TRUE)
+bos_samp <- boston[row_samp,]
+temp_mod <- lm(data = bos_samp, medv~lstat+rm+ptratio)
+coeff1[i] <- temp_mod$coefficients[1]
+coeff2[i] <- temp_mod$coefficients[2]
+coeff3[i] <- temp_mod$coefficients[3]
+coeff4[i] <- temp_mod$coefficients[4]
+}
+quantile(coeff1, c(0.025, 0.975))
+quantile(coeff2, c(0.025, 0.975))
+quantile(coeff3, c(0.025, 0.975))
+quantile(coeff4, c(0.025, 0.975))
+```
+
+(h) Looking back at the ggpairs plot, are there any possible variable transformations of the x’s that might help? Try some (be creative!)
+```{r}
+boston$lstat_recip <- 1/boston$lstat
+summary(lm(data = boston, medv~lstat_recip+rm+ptratio+chas))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

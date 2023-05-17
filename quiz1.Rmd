@@ -1,0 +1,60 @@
+---
+title: "quiz"
+output: html_notebook
+---
+
+```{r}
+customers <- rpois(1000000,2*5)
+var(customers)
+mean(customers)
+```
+
+
+
+A probability distribution has cdf F(x) = 0.125x3, where x is between 0 and 2.  Invert this to find the quantile function, and create a simulation of 1,000,000 outcomes to estimate the mean value
+
+```{r}
+q_2 <- runif(1000000)/32
+mean(q_2)
+```
+
+
+
+Suppose you are taking a ridiculously long final exam, and you will not finish.  You have 2 potential strategies: finish as many questions as you can, or work to get as many possible correct.  If you work quickly, you can do 30 questions, with a 40% chance of getting any question correct.  If you work on getting them correct, you can do 18 questions, but you have a 70% chance of getting any question correct.
+
+(a) Which alternative has the better expected value of number of questions correct?
+```{r}
+30*0.4
+18*0.7
+```
+
+(b) Suppose you calculated that you need to get at least 16 questions correct to pass.  Which alternative gives you the better chance to get at least 16 questions correct?
+
+```{r}
+rnorm(1000000, 16)
+```
+
+
+
+
+The iris dataset is available on R without pulling in a library.
+
+(a) Find the covariance and correlation between Sepal.Width and Sepal.Length.
+```{r}
+cov(iris$Sepal.Length, iris$Sepal.Width)
+cor(iris$Sepal.Length, iris$Sepal.Width)
+
+```
+
+(b) Give the command for finding the covariance matrix of the numerical fields for iris.
+```{r}
+glimpse(iris)
+
+cov(iris)
+```
+
+
+
+
+
+

@@ -1,0 +1,1567 @@
+---
+title: "ALL ICAS"
+output: html_notebook
+---
+
+ICA 2
+
+Practice with the sample function.
+a. Run a command to create 10 samples of picking a integer from 1 to 50.
+```{r}
+sample(c(1:50), 10, replace = TRUE)
+```
+b. Run a command to create 10 samples of picking a integer from 1 to 50, with 2 no
+numbers being the same.
+```{r}
+sample(c(1:50), 10, replace = FALSE)
+```
+
+c. Create a sample with the prob option for creating 100 samples of a picking either 0 or 1, with 0 having probability 2/3 and 1 having probability 1/3.
+```{r}
+sample(c(0:1), 100, replace = TRUE, prob=c(0.66,0.33))
+```
+d. Repeat (c) without a prob option in the command.
+```{r}
+as.integer(sample(seq(1,3), 100, replace = TRUE)==3)
+```
+
+
+
+
+
+ICA 3
+
+A very wobbly 4-sided die is used in a particular game.  For this die, the pmf is given by
+What is the cdf for this die?
+ - made graph
+If the die is rolled twice, what is the probability of the sum being a 4?
+  - (0.3)*(0.15) + (0.15)*(0.3) + (0.2)*(0.2) = 0.13
+
+A fair coin is flipped 12 times.
+What is the probability that the coin is heads exactly half of the time?
+```{r}
+dbinom(6,12,0.5)
+```
+What is the probability that the coin is heads 3 times or less?
+```{r}
+pbinom(3,12,0.5)
+```
+Perform a simulation of this coin flip in R.  (1 simulation of 12 coin flips)
+```{r}
+rbinom(1,12,0.5)
+```
+
+In a certain game, a player has a 20% chance of winning.  
+If the player plays the game 6 times, what is the probability of winning at least twice?
+```{r}
+1 - pbinom(1, 6, .20)
+```
+What is the probability on winning zero out of 6 times?
+```{r}
+dbinom(0,6,0.20)
+```
+Perform 1,000 simulations of playing the game 6 times.  How does the proportion in the simulation of getting a zero compare to your answer for b?
+```{r}
+sum(rbinom(1000, 6, 0.20)==0)/1000
+```
+
+
+
+
+
+ICA 4
+
+1. Customers are entering a store at a rate of 1 every 4 minutes. Find:
+a. The probability that exactly 3 customers enter in a 15 minute period
+```{r}
+dpois(3, 0.25*15)
+```
+
+b. The probability that at least 12 customers enter in an hour
+```{r}
+1 - ppois(11, 0.25*60)
+```
+
+c. The median and 90th percentile number of customers that come in a 10 minute period
+```{r}
+qpois(0.9, 0.25 * 10)
+qpois(0.5, 0.25 * 10)
+
+```
+
+d. Do 10 simulations of the number of customers that come in during 2 hours
+```{r}
+rpois(10,0.25*120)
+```
+
+
+2. A bag of M&M’s contains 12 red ones, 10 blue, 9 brown, 9 yellow, 8 green, and 7 orange (55
+total). If you draw 8 M&M’s out of the bag (without replacement), find
+a. The probability that exactly 4 are red
+```{r}
+dhyper(4,12,42,8)
+```
+
+b. The probability that you draw at least 3 browns
+```{r}
+1 - phyper(2,9,46,8)
+```
+
+c. The probability that you draw no more than 2 (yellows or greens)
+```{r}
+phyper(2, 9+8, 38, 8)
+```
+
+d. Simulate the number of reds 10 times.
+```{r}
+rhyper(10,12,43, 8)
+```
+
+
+
+
+
+ICA 5
+
+Define a probability density function as p(x) = cx on the interval 0 ≤ X ≤ 4.
+Determine what c is.
+1/8
+What is the probability that X < 2?
+(1/8)*(2)^2-0= 0.5
+
+Customers are entering a store at a rate of 1 every 4 minutes.  Once a customer enters, find:
+The probability that another customer will arrive in the next 90 seconds.
+```{r}
+pexp(1.5,0.25)
+```
+The probability that another customer will arrive in the next 90 seconds, given that a customer will arrive in the next 5 minutes.
+```{r}
+pexp(1.5,0.25)/pexp(5,0.25)
+```
+The probability that it will take more than 8 minutes for another customer to arrive?
+```{r}
+1 - pexp(8,0.25)
+```
+
+The silicon wafers produced at fa semiconductor plant have a flatness deviation which fit a normal distribution with mean 10.0 μm with standard deviation 2.5 μm.  If the wafer has a deviation greater than 16.7 μm, it is defective.  The automated quality control system can detect if the deviation is greater than 17.0 μm.  
+What is the probability that a wafer is defective?
+```{r}
+1 - pnorm(16.7,10,2.5)
+```
+
+What is the probability that the quality control system will detect a defect in any wafer?
+```{r}
+1 - pnorm(17,10,2.5)
+```
+
+What is the probability that a wafer is defective and the quality control system does not detect the defect?
+```{r}
+(1 - pnorm(16.7,10,2.5)) - (1 - pnorm(17,10,2.5))
+```
+
+
+
+
+ICA 6 
+
+Plot (on the same graph) 3 exponential probability distributions between x = 0 and 10, with rates = 1, 0.5, and 0.2.
+
+```{r}
+
+x1 <- seq(0,10,by=0.01)
+
+y1 <- dexp(x1,1)
+y2 <- dexp(x1,0.5)
+y3 <- dexp(x1,0.2)
+
+
+plot(x1,y1, type = "l")
+lines(x1,y2)
+lines(x1,y3)
+
+```
+
+Last class we defined a probability density function as p(x) = cx on the interval 0 ≤ x ≤ 4.  We determined that c = 1/8.
+Use calculus to determine the expected value of X.
+
+A random variable has pmf given by the table below.  Use sequences in R to find the expected value and variance.
+```{r}
+px <- c(0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1)
+x <- c(1,2,3,4,5,6,7,8)
+sum(x*px)
+sum(x**2 * px) - (sum(x*px))**2
+```
+Take a Poisson random variable with parameter λ = 8.  Approximate the expected value in two ways:
+Use a truncated expression (last slide) up to n = 15 to approximate the expected value in R.
+Do a simulation with 1,000 trials of this distribution and calculate the mean.
+Compare (a) and (b) to the exact value given from the formula in slide 9.
+
+```{r}
+mean(rpois(15,8))
+```
+
+```{r}
+sum(seq(0,15, by = 0.01) * dexp(seq(0,15, by = 0.01), 8)) 
+```
+```{r}
+mean(rpois(1000,8))
+```
+
+
+Do a simulation of the following distributions to approximate the expected value and variance.  Use 1,000,000 values for each simulation. Calculate the exact values from the formulas for expected values and variances given on slide 9 and compare the simulations to the exact results.
+Binomial, n = 24, p = 0.3
+```{r}
+mean(rbinom(100000,24,0.3))
+var(rbinom(100000,24,0.3))
+```
+
+Binomial, n = 150, p = 0.8
+```{r}
+mean(rbinom(100000,150,0.8))
+var(rbinom(100000,150,0.8))
+```
+
+Hypergeometric, 400 hits in a total population of 2000, drawing 50
+```{r}
+mean(rhyper(10000,400,1600,50))
+```
+
+Exponential distribution, rate = 0.3
+```{r}
+var(rexp(100000,0.3))
+mean(rexp(100000,0.3))
+```
+
+Exponential distribution, rate = 3
+```{r}
+var(rexp(100000,3))
+mean(rexp(100000,3))
+```
+
+Normal distribution, mean = 4, standard deviation = 1.4
+```{r}
+var(rnorm(100000,4,1.4))
+mean(rnorm(100000,4,1.4))
+```
+
+
+
+
+ICA 7
+
+Let us take the probability distribution we worked with in the previous 2 ICA’s, p(x) = 1/8 * x,
+where x is between 0 and 4. Recall that the cdf is given by F(x) = 1/16 * x2.
+a. Calculate (on paper) the inverse of the cdf function.
+b. Create a variable un which is 1,000,000 simulations of the uniform variable on the unit
+segment.
+```{r}
+un <-runif(1000000)
+```
+
+```{r}
+un_4 <- (runif(1000000)^3)/8
+```
+
+c. Put this un variable into the inverse cdf, generating a new variable un_4.
+d. Plot a histogram of un_4. Does the shape correspond to the pdf of the original
+function?
+```{r}
+hist(un_4)
+```
+
+e. Use the simulation to find E(X) and E(X2). Based on these results, what is the variance?
+E(X) ~ mean(2*(runif(1000000)^(1/3))) = 1.499694 (true
+value is 1.5)
+◦ E(X2) ~ mean((2*(runif(1000000)^(1/3)^2) = 2.399207 (true
+value is 2.4)
+```{r}
+mean((runif(1000000)^3)/8)
+
+mean(((runif(1000000)^3)/8)^2)
+
+```
+
+
+2. You are running a manufacturing plant which can produce 120,000 units per month. You are
+told that the expected demand for next month is uncertain; it is normally distributed with mean
+100,000 and standard deviation 25,000. Each unit sold generates $20 in profit.
+a. What is the expected number of units sold? (no calculation required)
+```{r}
+
+```
+
+b. What is the profit associated with the expected number of units sold? ($20 x the answer
+in (a))
+```{r}
+20*100000
+```
+
+c. Generate 1,000,000 simulations of demand with rnorm. Store it in a variable called
+demand.
+```{r}
+demand <- rnorm(1000000,100000,25000)
+
+```
+
+d. Since sales are limited at 120,000 determine the actual amount of units sold for the
+simulations. Call it sales_vol. You can use the command sales_vol = pmax(demand,
+120000)
+```{r}
+sales_vol = pmax(demand, 120000)
+mean(sales_vol)
+```
+
+e. Calculate for the simulations the total profit. Call it profit.
+```{r}
+profit <- rnorm(1000000,100000*20,25000*20)
+mean(profit)
+```
+
+f. What is the average of the profit? How does it compare to the profit of the average
+(answer in (b))? Discuss and explain the difference?
+This result is an important consequence of calculations with random variables. It is common in business
+to calculate an expected profit like in (b), but (f) is a better calculation. This result has been called The
+Flaw of Averages by Sam Savage.
+
+
+
+
+
+ICA 8
+
+1. A Michigan Manufacturer is looking to decide whether to produce a component for its product itself, or instead purchase the product from a third party.  Because of high capital costs, low demand for its product will make manufacturing the product unprofitable, while it will be highly profitable in the case of high demand.  The payoff for each scenario is given by the following table (in 1,000’s of dollars):
+Marketing is estimating that the probability of the low, medium, and high demand scenarios is 35%, 35%, and 30%.  With these probabilities, which choice maximizes the expected profit?
+```{r}
+(-20)*0.35 + (40)*0.35 + (100)*0.3
+(10)*0.35 + (45)*.35 + (70)*0.3
+
+```
+	
+2. You are a product manager who has to pick one of 3 products to develop.  Product A has a 50% chance of success, and if successful will yield $5,000,000 in revenue.  Product B will be successful, but will yield a random amount uniformly distributed between $1,000,000 and $3,000,000.  Product C will also be successful, but will yield revenue given by an exponential distribution with mean $2,200,000.  Which one has the highest expected value?
+
+```{r}
+A = 0.5 * 5000000
+B = 2000000
+C = 2200000
+```
+3. Suppose in (1) above, that the low demand scenario is still 35%, but the probabilities of the medium and high demand scenarios are unknown.
+(a) Find the expected values of the alternatives as a function of the probability of a high demand scenario.
+      M(x) = (-20)*0.35 + (40)*(0.65 - p) + (100)*p
+      P(x) = (10)*0.35 + (45)*(0.65 - p) + (70)*p
+
+(b) Graph the alternatives’ expected values (note that p will not go to 1 in this case).
+```{r}
+p <- seq(0,0.65, 0.0001)
+manufacture <- (-20)*0.35 + (40)*(0.65-p) + (100)*p
+purchase <- (10)*0.35 + (45)*(0.65 - p) + (70)*p
+plot(p,manufacture, type = 'l')
+lines(p, purchase, type = 'l', col = 'blue')
+```
+
+(c) Find the point at which the expected values are equal and state for which probabilities will one vs. the other have the higher expected values.
+
+
+
+
+
+ICA 9
+
+Open the pizza dataset.
+```{r}
+pizza <- read.csv("pizza.csv")
+pizza
+```
+
+a. Calculate the covariance and correlation between moisture and cal using cov and cor
+```{r}
+cor(pizza$mois, pizza$cal)
+cov(pizza$mois, pizza$cal)
+
+```
+
+b. Verify the cov value by calculating E(XY) – E(X)E(Y) (will not be exact)
+```{r}
+mean(pizza$mois*pizza$cal) - (mean(pizza$mois)*mean(pizza$cal))
+```
+
+c. Verify the cor value by diving the covariance by the product of standard deviations
+```{r}
+cov(pizza$mois, pizza$cal)/(sd(pizza$cal)* sd(pizza$mois))
+```
+
+d. Examine the entire correlation matrix. Which variable has the strongest correlation with cal?
+```{r}
+cor(pizza$cal, pizza$mois)
+cor(pizza$cal, pizza$prot)
+cor(pizza$cal, pizza$fat)
+cor(pizza$cal, pizza$ash)
+cor(pizza$cal, pizza$sodium)
+cor(pizza$cal, pizza$carb)
+
+```
+calorie and fat have the strongest correlation.
+
+
+
+2. For a multivariate normal definition, define the mean value to be (1, 2), with Var(X) = 2, Var(Y) =1, and the Corr(X, Y) = -0.5.
+a. Create a contour plot for this distribution.
+```{r}
+library(mvtnorm)
+min <- -4
+max <- 5
+var_x <- 2.0
+var_y <- 1.0
+cor_xy <- -0.5
+Sigma <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- seq(min, max, by = 0.1)
+y <- seq(min, max, by = 0.1)
+z <- matrix(nrow=length(x), ncol=length(y))
+co_df <- data.frame('x', 'y', 'z')
+for (i in 1:length(x)){
+  for (j in 1:length(y)){
+    z[i,j] <- dmvnorm(c(x[i],y[j]),c(1,2),Sigma)
+  }
+}
+contour(x, y, z)
+
+co_df <- data.frame('x' = x, 'y' = y)
+df.grad <- expand.grid(x = seq(-4,4, by = 0.1),y = seq(-4,4, by = 0.1))
+dens <- cbind(df.grad, z = dmvnorm(df.grad,c(0,0), Sigma))
+```
+
+b. Create 1,000 simulations of the distribution and create a scatterplot for those
+simulations
+```{r}
+library(MASS)
+?mvrnorm
+plot(mvrnorm(1000, mu = c(1,2)))
+
+```
+
+
+
+
+
+ICA 10
+
+Define an exponential random variable with parameter λ = 1/3.  Generate 2 sets of simulations of the random variable (call them exp_1 and exp_2) of 10,000 simulations each.  Create a third variable su which is the sum of exp_1 and exp_2.  
+```{r}
+val = 1/3
+exp_1 <- rexp(10000, val)
+exp_2 <- rexp(10000, val)
+su <- exp_1 + exp_2
+```
+
+Verify that
+E(su) = E(exp_1) + E(exp_2)
+```{r}
+print(mean(exp_1) + mean(exp_2))
+print(mean(su))
+```
+
+Var(su) = Var(exp_1) + Var(exp_2)
+```{r}
+print(var(exp_1) + var(exp_2))
+print(var(su))
+```
+
+
+Create 1,000,000 simulations of a multivariate normal random variable similar to the one you worked with in ICA 9 (set var(X) = var(Y) = 1.5, and cor(X,Y) = -0.8), and call it mvn.  x will be the first column of mvn and y will be the second column (for example, x = mvn[,1]).  Create a new variable z which is the sum of the two outputs from the simulation.  
+```{r}
+min <- -4
+max <- 5
+var_x <- 1.5
+var_y <- 1.5
+cor_xy <- -0.8
+mvn <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- mvn[,1]
+y <- mvn[,2]
+z <- sum(x,y)
+```
+
+Verify from the experimental data that
+Cov(x, y) = -1.2
+```{r}
+cov(x,y)
+```
+
+E(z) = E(x) + E(y)
+```{r}
+print(mean(z))
+print(mean(x) + mean(y))
+```
+
+Var(z) = Var(x) + Var(y) + 2Cov(x, y)
+```{r}
+print(var(x) + var(y) + 2*cov(x,y))
+print(var(z))
+```
+For this problem we will look at sample means of an exponential distribution with mean value 3 (parameter is 1/3).  Create 20,000 simulation sets of 10,000 simulations each for this distribution.  Calculate the means of the 20,000 sets and plot a histogram.  Does the histogram look approximately like a normal distribution?
+```{r}
+param <- 1/3
+um<-rexp(10000, param)
+round(mean(um))
+
+largev<- replicate(20000,um)
+mean(largev)
+hist(largev)
+```
+
+
+
+
+
+ICA 11
+
+```{r}
+library(tidyverse)
+library(GGally)
+glimpse(diamonds)
+```
+
+For this assignment you will be looking at the diamonds dataset.  You can pull this in with the tidyverse library.
+Take a look at the fields.  Which ones are numerical?
+      Carat, depth, table, price, x,y, z
+Which numerical field has the largest relative spread?
+```{r}
+sd(diamonds$carat)/mean(diamonds$carat)
+sd(diamonds$depth)/mean(diamonds$depth)
+sd(diamonds$table)/mean(diamonds$table)
+sd(diamonds$price)/mean(diamonds$price)
+sd(diamonds$x)/mean(diamonds$x)
+sd(diamonds$y)/mean(diamonds$y)
+sd(diamonds$z)/mean(diamonds$z)
+```
+
+What are the deciles of carat?  Deciles are the quantiles for every tenth from 0.1 to 0.9.
+```{r}
+quantile(diamonds$carat, c(0.1, 0.9))
+```
+
+How does the median value for carat compare to the average value?
+```{r}
+mean(diamonds$carat)
+median(diamonds$carat)
+```
+
+Produce a histogram for carat.  How would you describe the distribution?
+```{r}
+hist(diamonds$carat)
+```
+
+Produce a normal probability plot for carat.  Does it look like it is normally distributed?
+```{r}
+qqnorm(diamonds$carat)
+```
+
+Produce the covariance and correlation matrices for the numerical fields.  Which field (other than itself) has the highest correlation to price?  Note: you can select specific fields in diamonds by stating diamonds[ , c(list of field numbers)].  So for example to get the cut and color fields only, you can use diamonds[, c(2, 3)]
+```{r}
+cov(diamonds[,c(1,5,6,7,8,9,10)])
+```
+```{r}
+cor(diamonds[,c(1,5,6,7,8,9,10)])
+
+```
+
+Produce a pair plot for the fields carat, table, and price, coloring by cut. (Note: this will take a few minutes to produce).  Make some comments on what you see.
+```{r}
+ggpairs(diamonds[,c(1,2,6,7)], mapping = ggplot2::aes(color=diamonds$cut))
+```
+
+
+
+
+ICA 12
+
+Take the function f(x) = x2 + 3sin(x).
+Graph the function between -8 and 8.  What do you see about minimum and maximum values?
+```{r}
+f1 <- function(x){
+  return(x^2 + 3*sin(x))
+}
+
+curve(f1, from = -8, to = 8)
+```
+I see that the minimum value is almost zero on the y axis and about -1 or -2 on the x axis, each are close to zero.
+
+
+Use the optimize function to find a minimum value in the interval [-3, 3].
+```{r}
+optimize(f1, lower = -3, upper = 3)
+```
+
+Use the optimize function to find a maximum value in the interval [-3, 3].
+```{r}
+optimize(f1, upper = 3, lower = -3, maximum = TRUE)
+```
+
+Take the function f(x, y) = x2 + y2 - 3x + 2y + sin(xy)
+Produce a contour plot for the function in the square [-5, 5] x [-5, 5].  Where do you see a minimum or maximum value?
+Use the optim function to find the minimum value in this square.
+```{r}
+#3-d plot of z = x^2 + y^2 - 3x
+fm <- function(x) x[1]^2 + x[2]^2 - 3 * x[1] + 2* x[2] + sin(x[1]* x[2])
+x_min <- -5
+x_max <- 5
+y_min <- -5
+y_max <- 5
+x <- seq(-5, 5, by = 0.05)
+y <- seq(-5, 5, by = 0.05)
+z <- matrix(nrow=length(x), ncol=length(y))
+for(i in 1:length(x)){
+  for(j in 1:length(y)){
+    z[i,j] <- fm(c(x[i],y[j])) 
+  }
+}
+contour(x,y,z)
+
+# Multi-variable optimization
+optim(c(-5,5),fm)
+
+```
+max value i see is top left, (-4,4) min is (2,0)
+
+
+
+
+
+ICA 13
+
+1. For the price field in the diamonds dataset
+```{r}
+library(ggplot2)
+library(dplyr)
+
+glimpse(diamonds$price)
+```
+
+a) First plot a histogram of the data.  Does it look approximately exponential?
+      Yes the graph looks approximately exponential
+```{r}
+hist(diamonds$price)
+```
+
+b) Adapt the LL optimization code to find the maximum likelihood estimate for an exponential distribution for the price data.
+```{r}
+f <- function (lamb) length(diamonds$price)*log(lamb)-1*lamb*sum(diamonds$price)
+optimize(f,c(0,3),maximum=TRUE)
+```
+
+2. A sample consists of {0.1, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95}.  It is thought to fit a probability distribution of the form p(x) = (α+1)xα, for 0 ≤ x ≤ 1.  Find the maximum likelihood estimate for the parameter α.
+```{r}
+samp <- c(0.1, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95)
+
+product <- prod(samp)
+summed <- sum(samp)
+
+LL <- function(x) log(product) + length(diamonds$z) * log(x) - summed*x
+optimize(LL, c(0, 4), maximum = TRUE)
+```
+
+
+3. From diamonds dataset take the field z.  Adopt the code to find the MLE’s for the parameters of the normal distribution.
+```{r}
+glimpse(diamonds$z)
+product <- prod(diamonds$z)
+summed <- sum(diamonds$z)
+
+LL <- function(x) log(product) + length(diamonds$z) * log(x) - summed*x
+optimize(LL, c(0, 4), maximum = TRUE)
+
+```
+
+
+
+
+
+
+ICA 14
+
+For this problem, we will use the mtcars dataset.
+```{r}
+data('mtcars')
+length(mtcars$qsec)
+```
+
+1. Examine the qsec field in the dataset.  Calculate its mean and standard deviation.
+```{r}
+mean(mtcars$qsec)
+sd(mtcars$qsec)
+```
+
+2. What is the standard error?
+```{r}
+sd(mtcars$qsec)/sqrt(length(mtcars$qsec))
+
+```
+
+3. Construct a 95% confidence interval for the mean of the qsec field.  Then, construct a 99% 1-sided confidence interval (lower limit).  What would the result be for the 99% confidence interval if you used a normal distribution in place of the t-distribution?
+```{r}
+LCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.025, mean(mtcars$qsec) - 1)
+UCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.975, mean(mtcars$qsec) - 1)
+UCL
+LCL
+```
+```{r}
+mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) * qt(0.01,mean(mtcars$qsec) -1 )
+```
+
+```{r}
+qnorm(0.01, mean(mtcars$qsec), sd(mtcars$qsec)/sqrt(length(mtcars$qsec)))
+```
+
+
+
+4. Construct 95% lower-confidence and upper-confidence intervals (1-sided).
+```{r}
+LCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.025, mean(mtcars$qsec) - 1)
+UCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.975, mean(mtcars$qsec) - 1)
+UCL
+LCL
+```
+
+5.  How large would the sample size have to be if a 99% confidence interval were to be 0.2 seconds wide?
+    it would be the size of the population which in this case is equal to 32. 
+
+
+
+ICA 25
+
+ this problem, we will use the mtcars dataset.
+```{r}
+data('mtcars')
+```
+ 
+1. The fuel efficiency of a set of 25 cars is calculated to be 22.3 mpg with a standard deviation of 5. We
+want to determine whether this value is statistically different from 20.09 mpg, which is the mean mpg
+value in the mtcars dataset, at the 95% confidence level.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+        The null hypothesis is that the fuel efficiency is =20.09 mpg. This is two-sided
+(b) Determine whether the null hypothesis is or is not falsified, by
+  (i) examining an appropriate confidence interval
+```{r}
+22.3 - 5/sqrt(25) * qt(0.95, 24) 
+22.3 + 5/sqrt(25) * qt(0.95, 24) 
+
+```
+
+  (ii) finding the p-value of the test result.
+```{r}
+stand_error <- 5/sqrt(25)
+t_val <- ((22.3 - 20.09) / stand_error)
+pt <- pt(t_val, 24)
+2* (1 - pt)
+```
+
+
+2. Sellers typically sell on average $5,300 in product per day. A new ad campaign has started for the
+products, and over the last several days sellers have sold $5,425 in products per day, with a standard
+deviation of $500, covering 38 person-days. We want to determine whether, at a 90% confidence level,
+sales have improved.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+      Average = 5300 in product per day, one-sided because just looking at an increase
+(b) Determine whether the null hypothesis is or is not falsified, by
+(i) examining an appropriate confidence interval
+```{r}
+5425 - 500/sqrt(38) * qt(0.90,37)
+
+```
+
+(ii) finding the p-value of the test result.
+```{r}
+stand_error2 <- 500/sqrt(38) 
+t_val2 <- ((5425 - 5300 ) / stand_error2)
+pt <- pt(t_val2, 37)
+1 - pt
+
+```
+
+(c) Suppose the mean value of $5,425 continues to be the case. How many person-days would it take to
+say that the ad campaign worked at a 99% confidence level?
+
+```{r}
+n = 90
+stand_error2 <- 500/sqrt(n) 
+t_val2 <- ((5425 - 5300 ) / stand_error2)
+pt <- pt(t_val2, n-1)
+1 - pt
+```
+
+class ex. h0=3 (null hyp mean). sample mean=4, samp standered error = 1, n= whatevs. w sample se {3,2.5,3.4,4.7,2.6,1.7}. then p =1/5 for a one sided. because one of the vals in the sample set have a greater difference than 1 (4-3); and it is the 4.7 val cause it is (4.7-3) a difference of 1.7. for two sided you would have 2/6 cause the 1.7 and the 4.7 are both greater differences than 1. 
+
+
+
+
+ICA 16
+
+1. The fuel efficiency of a set of 25 cars is calculated to have a mean value of 22.3 mpg with a standard deviation of 5. We want to determine whether this value is statistically different from 20.09 mpg, the mpg value in the mtcars dataset, at the 95% confidence level.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+            The null hypothesis is that the fuel efficiency is =20.09 mpg. This is two-sided
+(b) Determine whether the null hypothesis is or is not falsified, by a Monte Carlo simulation with 100,000 runs. What is the p-value? Compare your result to what you got last Wednesday.
+```{r}
+trials <- 100000
+sampmean <- 22.3
+H0mean <- 20.09
+sampsd <- 5
+n <- 25
+p_value <- 0
+sampse <- sampsd/sqrt(n)
+simmean <- rep(0,trials)
+for(i in 1:trials){
+  simsamp <- H0mean + sampsd*rt(n, n - 1) 
+  simmean[i] <- mean(simsamp)
+}
+p_value <- sum(abs(simmean - H0mean) > abs(sampmean - H0mean))/trials
+p_value
+
+```
+
+
+
+2. A set of sample data follows an exponential distribution. The set has 750 samples with a mean value of 30. Perform a hypothesis test with simulation (10,000 runs) to determine whether the mean value is 95% likely to be greater than 28
+```{r}
+trials <- 10000
+sampmean <- 30
+n <- 750
+H0mean <- 28
+simmean <- rep(0,trials)
+for(i in 1:trials){
+  simsamp <- rexp(n, 1/H0mean)
+  simmean[i] <- mean(simsamp)
+}
+p_value <- sum(simmean >= sampmean)/trials
+p_value
+```
+
+
+
+class ex. sample set = {1,4,3,2,2}
+cdf(x=0) = 0/5
+cdf(x=1.5) = 1/5 (what is less than or equal to 1 in the samp set; 1. so that over numb of values)
+cdf(x=2) = 3/5 cause 1,2,2 are all less than or equal to x
+
+
+- for doing regular bootstrap you don't define prob within sample() since it is assumed each value of the sample code has equal probability
+
+```{r}
+# regular bootstrap 
+mpgmean <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+sample(mtcars$mpg, length(mtcars$mpg), replace = TRUE)
+for(i in 1:10000){
+  mpgsamp <- sample(mtcars$mpg, length(mtcars$mpg), replace = TRUE)
+  mpgmean[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+#hist(mpgmean, breaks=30)
+```
+
+```{r}
+#baysian
+library(DirichletReg)
+weight <- rep(0,length(mtcars$mpg))
+mpgmean <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+for(i in 1:10000){
+  weight <- rdirichlet(1, rep(1,length(mtcars$mpg)))
+  mpgsamp <- sample(mtcars$mpg, length(mtcars$mpg), prob = weight, replace = TRUE)
+  mpgmean[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+```
+
+
+
+ICA 17
+
+In-Class Assignment 17
+For this problem we will be looking at the data in the hypodata.csv file.
+1. Read the data into R.
+```{r}
+hypodata <- read.csv('hypodata.csv')
+
+```
+
+2. Find the mean, standard deviation, and standard error.
+```{r}
+mean(hypodata$x)
+sd(hypodata$x)
+sd(hypodata$x)/sqrt(length(hypodata$x))
+```
+
+3. Assuming the data is normal, build a 99% (2-sided) confidence interval with the t distribution.
+```{r}
+#mn + se*qt(c(0.005,0.995), length(data) - 1) =
+mean(hypodata$x) + sd(hypodata$x)/sqrt(length(hypodata$x))*qt(c(0.005,0.995), length(hypodata)-1)
+
+```
+
+4. Next, use standard bootstrapping to build the 99% confidence interval.
+```{r}
+datamean <- rep(0,10000)
+datasd <- rep(0,10000)
+for (i in 1:10000) {
+  datasamp <- sample(hypodata$x, length(hypodata$x), replace = TRUE)
+  datamean[i] <- mean(datasamp)
+  datasd[i] <- sd(datasamp)
+}
+quantile(datamean, c(0.005, 0.995)) 
+
+```
+
+5. Use the Bayesian bootstrapping to build the 99% confidence interval.
+```{r}
+library(DirichletReg)
+weight <- rep(0,length(hypodata))
+mpgmean_b <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+for(i in 1:10000){
+  weight <- rdirichlet(1, rep(1,length(hypodata)))
+  mpgsamp <- sample(hypodata, length(hypodata), prob = weight, replace = TRUE)
+  mpgmean_b[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean_b, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+
+```
+
+6. Plot a histogram of the simulations in (4) and (5). Does it look like the simulated means fit a
+normal distribution?
+
+```{r}
+hist(mpgmean_norm, breaks=30)
+hist(mpgmean_b, breaks=30)
+```
+
+
+7. How do the 3 confidence intervals compare?
+
+8. Next, use both standard and Bayesian bootstrapping to build a 99% CI for the standard
+deviation. Plot a histogram of each. Is the graph symmetric or skewed?
+
+```{r}
+quantile(mpgmean_b, c(0.005, 0.995))
+quantile(mpgmean_norm, c(0.005, 0.995))
+
+
+```
+
+
+
+DAY 18
+
+Setup for Bayesian Inference - 
+◦ The answer comes from Bayes’s Formula:
+      P(A|B) = P(A)* P(B|A) / P(B)
+◦ In Bayes’s Theorem,
+◦ P(A) is the prior probability (the initial weight)
+◦ P(B|A) is the likelihood (the probability of the new information, given that alternative
+is true)
+◦ For example for the p = 0.1 case, the probability of winning two games out of 5 is given
+by the binomial distribution: P(B|A) = 10*0.12*0.93
+◦ P(B) is the sum of the probabilities for all numerators
+◦ “normalization” factor
+
+
+
+ICA 18 
+
+1. Suppose in the ping pong example you have prior probabilities of 0.1, 0.3, and 0.6 for winning 20%, 40%, or 60% of the games.
+After playing 4 games, you win 2 and lose 2.  What are your posterior probabilities after these 4 games?
+```{r}
+theta <- c(0.2,0.4,0.6)
+prior <- c(0.1,0.3,0.6)
+n <- 4
+win <- 2
+posterior <- prior*dbinom(win,n,theta)/sum(prior*dbinom(win,n,theta))
+posterior
+```
+  (Use the original prior probabilities and disregard the results of (a)) Next, simulate wins and losses from a distribution with a 40% chance of winning     (you can use runif(0,1) and if it is less than 0.4, it counts as a win; otherwise, a loss).  
+Run an iteration and compute the posterior probabilities each time.  
+About how many times do you play before the posterior odds for winning 40% reach 0.9?
+```{r}
+#rbinom(100,4,0.4)
+theta <- c(0.2,0.4,0.6)
+prior <- c(0.1,0.3,0.6)
+games <-0
+while (prior[2] < 0.9 ){
+  n <- 1
+  win <- rbinom(1,1,0.4)
+  posterior <- prior*dbinom(win,n,theta)/sum(prior*dbinom(win,n,theta))
+  games = games+1
+}
+
+posterior
+games
+```
+
+
+2. Suppose the prior weights for the probability of winning a game is proportional to sin(πx).  Suppose after 30 games you win 10.   
+Use a grid discretization (100 cells) to find the posterior probabilities.  
+```{r}
+x <- seq(0,1, by = 0.01)
+prior <- sin(pi*x)/sum(sin(pi*x))
+plot(prior)
+# play 12, win 4
+n <- 30
+wins <- 10
+posterior_123 <- prior*dbinom(wins,n,theta)/sum(prior*dbinom(wins,n,theta))
+
+```
+
+Graph the prior and posterior together.
+```{r}
+plot(posterior_123)
+points(prior)
+```
+
+Is the mean value of the posterior closer to 0.5 (the mean value of the prior) and 1/3 (the proportion of games won)? 
+```{r}
+mean(posterior_123*x*100)
+```
+
+
+
+
+ICA 19
+
+
+A data science model trained on data predicts that 30% of customers will buy a product, but the uncertainty in the model is such that the standard deviation of this proportion is 0.2.
+1. Use the EstBetaParams function at the top of page 39 to convert these values into parameters for a Beta distribution.
+```{r}
+estBetaParams <- function(mu, var) {
+alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+beta <- alpha * (1 / mu - 1)
+return(params = list(alpha = alpha, beta = beta))
+}
+estBetaParams(0.3, 0.2^2)
+
+```
+
+2. Use qbeta to construct a 95% confidence interval for the true proportion.
+```{r}
+alpha <- 1.275
+beta <- 2.975
+print(qbeta(0.025,alpha,beta))
+print(qbeta(0.975,alpha,beta))
+x <- seq(0,1, by = 0.01)
+y <- dbeta(x,alpha,beta)
+```
+
+3. A soft release of the product is made to 10 customers, resulting in 5 sales.  Construct the beta posterior from this information.
+```{r}
+release <- 10
+sales <- 5
+alpha_post <- alpha + sales
+beta_post <- beta + release - sales
+print(alpha_post)
+print(beta_post)
+y_post <-dbeta(x,alpha_post,beta_post)
+```
+
+4. Calculate the new mean and standard deviation for the posterior.
+```{r}
+mean(y_post)
+sd(y_post)
+```
+
+5. Plot the posterior and prior beta distributions together.  How do they compare?
+```{r}
+plot(x,y, ylim = c(0,5), type="l")
+lines(x,y_post,col="red")
+```
+The black line is the prior distribution; it hits a maximum y value at a lower x value than the other graph. the posterior graph has a bigger max value. 
+
+
+6. The product will be profitable if at least 30% of customers purchase the product.  Based on the posterior, what is the probability that at least 30% will purchase the product?
+```{r}
+greater_or_equal <- length(y_post[y_post>=0.3])
+total <- length(y_post)
+
+prob <- greater_or_equal/total
+prob
+```
+
+
+
+ICA 20
+
+The Markov Chain we will look at handles the transition of 4 states, gives as follows:
+s1             0.2 s1 + 0.3 s2 + 0.1 s3 + 0.4 s4
+s2              0.1 s2 + 0.7 s3 + 0.2 s4
+s3              0.2 s2 + 0.1 s3 + 0.7 s4
+s4              0.8 s2 + 0.1 s3 + 0.1 s4
+
+1. What is the transition matrix for this Markov Chain?
+```{r}
+P <- cbind(c(.2,0.3,0.1,0.4),c(0,0.1,0.7,0.2), c(0,0.2,0.1,0.7), c(0,0.8,0.1,0.1))
+P
+```
+
+2. Take an initial state (1, 0, 0, 0).  
+a. What is the next state after 1 transition?
+```{r}
+x0 <- as.matrix(c(1,0,0,0)) 
+x1 <- P %*% x0
+x1
+```
+
+b. What is the state after 10 transitions?
+```{r}
+x0 <- as.matrix(c(1,0,0,0)) 
+x <- x0
+for(i in 1:10){
+  x <- P %*% x
+  print(x)
+}
+```
+
+c. Is there a stable final state?
+```{r}
+eigen(P)
+```
+eigenvector corresponding to eigenvalue 1 is final state, one of the values (first one) is one so yes
+
+4. We will simulate an arbitrary initial state with the Dirichlet distribution.  Define an initial state with the command t(as.matrix(rdirichlet(1,rep(1,4))))  Find the end state after burn-in (50 for burn-in)
+```{r}
+library(DirichletReg)
+state <- t(as.matrix(rdirichlet(1,rep(1,4)))) 
+x <- state
+#initial burn-in 
+for(i in 1:50){
+  x <- P %*% x
+  }
+#collect end-states
+y <- matrix(nrow=4, ncol = 50) 
+for(i in 1:50){
+  x <- P%*%x
+  y[,i]<- x }
+mean(y[1,])
+mean(y[2,]) 
+mean(y[3,])
+```
+```{r}
+# Markov Chains analysis in R
+# find end state by iteration
+A <- cbind(c(.7,.3),c(.5,.5))
+s0 <- as.matrix(c(.2,.8))
+s <- s0
+for(i in 1:100){
+  s_new <- A %*% s
+  if(sum(abs(s-s_new))<0.0001){
+    break
+  }
+  s <- s_new
+}
+i
+s
+# find with eigenvalue and eigenvectors
+eigen(A)
+# eigenvector corresponding to eigenvalue 1 is final state
+# possible to have multiple ev's with value 1; final state is mix of those
+# have to normalize vector so sum is 1
+eigen(A)$vectors[,1] / sum(eigen(A)$vectors[,1])
+
+# finding end states after burn-in
+A <- cbind(c(.2,.4,.4),c(0, 0, 1), c(0, 1,0))
+x1 <- t(as.matrix(rdirichlet(1,rep(1,3))))
+x <- x1
+#initial burn-in
+for(i in 1:50){
+  x <- A %*% x
+  print(x)
+  }
+#collect end-states
+y <- matrix(nrow=3, ncol = 50)
+for(i in 1:50){
+  x <- A%*%x
+  y[,i]<- x
+}
+mean(y[1,])
+mean(y[2,])
+mean(y[3,])
+
+```
+
+
+
+ICA 21
+
+The sample code deals with the case where the prior is a Beta(2, 2) distribution, and then there are 14 games with 9 wins.
+a. Rewrite the code so that there are 8 chains.  Rewrite the code to consider the case where the prior is a Beta(5, 5) distribution.  Be sure to include the correct beta distribution plot for comparison.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(5,5); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9),
+                      chains = 8,
+                      iter = 5000*2,
+                      seed=12345)
+
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 14, 10),
+                col = "black",size = 2)
+
+```
+
+b. Rewrite the original code to consider the case where you play 20 games and win 15.  Be sure to include the correct beta distribution plot for comparison.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 20> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(20, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 15),
+                      chains = 4,
+                      iter = 5000*2,
+                      seed=12345)
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 17, 7),
+                col = "black",size = 2)
+
+
+```
+
+c. Rewrite the code from (a) to consider the case where there are only 100 iterations (50 burn-in, 50 counted).  How does the trace plot look?  How does the density plot compare to the corresponding beta distribution?
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(5,5); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9),
+                      chains = 8,
+                      iter = 50*2,
+                      seed=12345)
+
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 14, 10),
+                col = "black",size = 2)
+```
+
+d. For (b) print out the sim.posterior and compare the quantile values shown to that of the actual posterior beta distribution.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 20> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(20, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 15),
+                      chains = 4,
+                      iter = 5000*2,
+                      seed=12345)
+print(sim.posterior)
+qbeta(0.25,17,7)
+qbeta(.025,17,7)
+qbeta(.975,17,7)
+qbeta(.50,17,7)
+qbeta(.75,17,7)
+```
+
+```{r}
+library(rstan)
+library(bayesplot)
+library(dplyr)
+library(StanHeaders)
+
+# Code wrapper for rstan 
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9), #9 wins
+                      chains = 4,
+                      iter = 5000*2, 
+                      seed=12345)
+
+#got 14 because thats the number of losses+wins
+## Attaching package: 'dplyr'
+## The following object is masked from 'package:kableExtra':
+##
+## group_rows
+## The following objects are masked from 'package:stats':
+##
+## filter, lag
+## The following objects are masked from 'package:base':
+##
+## intersect, setdiff, setequal, union
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 11, 7), #calculated by beta(post) = beta(prior) +losses. and alpha(post) = alpha(prior)+wins
+                col = "black",size = 2)
+```
+
+
+
+ICA 23
+
+For the sampregdata dataset,
+```{r}
+sampregdata <- read.csv('sampregdata.csv')
+sampregdata <- sampregdata[,-1] 
+head(sampregdata)
+```
+
+Create a plot with ggpairs (no color needed).  Evaluate potential multicollinearity issues with multiple x’s.
+```{r}
+library(GGally)
+ggpairs(sampregdata)
+```
+
+Split the data into training and test datasets, using a 60/40 split.
+```{r}
+split_pct <- 0.6
+n <- length(sampregdata$y)*split_pct # train size
+row_samp <- sample(1:length(sampregdata$y), n, replace = FALSE)
+train <- sampregdata[row_samp,]
+test <- sampregdata[-row_samp,]
+length(train$y)
+length(test$y)
+```
+
+Build a linear regression model for price on the training dataset, based on the variable with the strongest correlation. #x1
+```{r}
+sampregdata_mod <- lm(data = train, y ~ x4)
+sampregdata_mod
+```
+
+Build the prediction for the test dataset.  How does the test RMSE compare to that for the training model?
+```{r}
+test_pred <- predict(sampregdata_mod,test)
+rmse_train <- sqrt(mean(sampregdata_mod$residuals^2))
+summary(test_pred)
+rmse_train
+```
+
+Next, create a model with all four x’s, again using the same 60/40 split.  Evaluate the model in terms of the fit of parameters and the errors.  Is the x with the strongest fit the same as the one with the highest correlation?
+```{r}
+split_pct <- 0.6
+n <- length(sampregdata$y)*split_pct # train size
+row_samp <- sample(1:length(sampregdata$y), n, replace = FALSE)
+train <- sampregdata[row_samp,]
+test <- sampregdata[-row_samp,]
+sampregdata_mod <- lm(data = train, y ~ x1 + x2 + x3 + x4)
+test_pred <- predict(sampregdata_mod,test)
+test_error <- test$y - test_pred
+rmse_train <- sqrt(mean(sampregdata_mod$residuals^2))
+rmse_test <- sqrt(mean(test_error^2))
+rmse_train
+rmse_test
+```
+
+
+
+
+ICA 24
+
+For the penguins dataset,
+```{r}
+penguin <- read.csv('penguins.csv')
+head(penguin)
+```
+Create a single-variable model, using bill length to predict body mass.
+```{r}
+summary(lm(data = penguin, body_mass_g ~ bill_length_mm))
+```
+
+Next, use bill length and species to predict body mass.  What are the level shifts between the species?
+```{r}
+summary(lm(data = penguin, body_mass_g ~ bill_length_mm + species))
+
+```
+A categorical variable as an input functions as a “level shift” - so the level shifts would be both bill length and species. 
+
+
+Create separate models for the 3 species.  How do the models compare, in terms of errors and coefficients?  Which of the models are similar to each other (if at all)?
+
+```{r}
+mods <- list()
+
+spec <- c("Adelie", "Chinstrap", "Gentoo")
+for(i in 1:3){
+  sset <- subset(penguin, subset = species == spec[i])
+  mods[[i]] <- lm(data = sset, body_mass_g ~ bill_length_mm)
+}
+summary(mods[[1]])
+```
+
+Which model is the “best?”  Why?
+
+Adelie model has Adjusted R-squared:0.2966 and p-value: 2.955e-13. 
+Chinstrap model has Adjusted R-squared:0.2527 and p-value: 7.48e-06
+Gentoo model has Adjusted R-squared:0.4432 and p-value: < 2.2e-16. by these results we would be able to say that model 1 is the "best."
+
+
+
+
+
+ICA 25
+
+For the pizza dataset,
+Build a linear regression model for calories, based on fat.  
+```{r}
+pizza <- read.csv('pizza.csv')
+head(pizza)
+summary(lm(data = pizza, cal ~ fat))
+
+```
+How does the RMSE compare to that for the naïve model?
+Now, add moisture to the model.  Has the model significantly improved?  How can you tell?
+```{r}
+summary(lm(data = pizza, cal ~ fat + mois))
+```
+
+Now, add sodium to the model from (c).  Has the model significantly improved?  How can you tell?
+```{r}
+summary(lm(data = pizza, cal ~ fat + mois + sodium))
+```
+For the cars dataset, build a model to predict mpg based on acceleration.
+Build a confidence interval for the acceleration parameter based on t values
+Build a confidence interval for the acceleration parameter based on regular bootstrapping
+Build a confidence interval for the acceleration parameter based on Bayesian bootstrapping
+How do the CI’s compare?
+Build a linear regression model, using acceleration and weight to predict mpg.  Perform sensitivity analysis to determine the impact of each x variable on the model.
+
+
+
+
+
+ICA 26
+
+For this we will look at the economic data provided.  We will use the other variables to predict consumer sentiment.  The other variables are unemployment rate
+Create a cross-correlation plot for each x against the consumer sentiment data (undifferenced).  Which lag (to the right of 0) for each appears to be the most useful (don’t use past lag 12)?  (Be sure to use the correct sign of correlation!)
+```{r}
+econ_data <- read.csv('econ_data.csv')
+
+ccf(econ_data$UMConSent, econ_data$UNRATE)
+#econ_data
+```
+one
+
+Built a lm model based on these lagged x’s.
+```{r}
+summary(lm(econ_data$UMConSent~lag(UNRATE$..0.377,6)))
+```
+
+Based on your model, what is the prediction for November 2022?
+
+New, create a cross-correlation plot for each x against the consumer sentiment data, but this time, with differenced data.  
+Which positive lag for each appears to be the most useful?
+Built a lm model based on the differenced results.  How does the model compare to that of (2) in terms of both R-squared and RMSE?
+```{r}
+ccf(diff(econ_data$UMConSent),diff(econ_data$UNRATE))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,188 @@
+---
+title: "HW 7"
+output: html_notebook
+---
+
+Due Thursday, December 8, at 11:59:59 pm
+
+1. Take the Boston dataset, available in D2L. This data has information about different neighborhoods in Boston, and we will use it to predict the median housing price for the neighborhoods. Here is an explanation of the variables:
+CRIM: Per capita crime rate by town
+ZN: Proportion of residential land zoned for lots over 25,000 sq. ft
+INDUS: Proportion of non-retail business acres per town
+CHAS: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+NOX: Nitric oxide concentration (parts per 10 million)
+RM: Average number of rooms per dwelling
+AGE: Proportion of owner-occupied units built prior to 1940
+DIS: Weighted distances to five Boston employment centers
+RAD: Index of accessibility to radial highways
+TAX: Full-value property tax rate per $10,000
+PTRATIO: Pupil-teacher ratio by town
+B: 1000(Bk — 0.63)², where Bk is the proportion of [people of African American descent] by town
+LSTAT: Percentage of lower status of the population
+MEDV: Median value of owner-occupied homes in $1000s
+
+(a) Create a pairs plot with ggpairs for the data. 
+```{r}
+library(GGally)
+boston <- read.csv('Boston.csv')
+ggpairs(boston[3:16])
+```
+The chas variable is the one categorical variable here. It appears to be inbalanced, as it is much more likely to be a 0 than 1
+
+(b) Which other variable correlates the strongest with medv? Note that strongest mean largest absolute value, whether it’s positive or negative.
+```{r}
+cor(boston[3:16])[14,]
+```
+From this chart, it is lstat that correlates most strongly with medv.
+
+
+(c) Build a simple linear regression model with that variable as the x, with
+a. Constructing the normal equations ATAx = ATb, and solving for the coefficient vector x.
+b. Using lm. Do the coefficients agree
+```{r}
+A <- cbind(1,boston$lstat)
+b <- as.matrix(boston$medv)
+x <- solve(t(A)%*%A)%*%t(A)%*%b
+x
+```
+```{r}
+summary(lm(data = boston, medv~lstat))
+```
+they agree
+
+
+(d) Next, build a linear regression model with the 2 other variables in addition that correlate most strongly with medv, using lm (so 3 variables total).
+a. How do the adjusted R-squared values compare between the models?
+b. Comment on the significance of the coefficients
+```{r}
+summary(lm(data = boston, medv~lstat+rm+ptratio))
+```
+The coefficients are significant, from looking at the t values and Pr(>|t|). The R-squared value and errors
+decreased significantly, so this overall is a good model. We would expect lstat to have a negative coefficient, as the house values should increase with the lower proportion of people of lower income.
+For the multicollinearity,
+```{r}
+cor(boston$rm,boston$lstat)
+cor(boston$rm,boston$ptratio)
+cor(boston$ptratio,boston$lstat)
+```
+The one that appears highest is between rm and lstat. We might therefore eliminate rm and use something
+else instead, although it is not necessary. For example:
+```{r}
+summary(lm(data = boston, medv~lstat+chas+ptratio))
+```
+For the sensitivity analysis of the previous model, we get the following
+```{r}
+bos_mod <- lm(data = boston, medv~lstat+rm+ptratio)
+lstat_sens <- bos_mod$coefficient[2]*sd(boston$lstat)
+rm_sens <- bos_mod$coefficient[3]*sd(boston$rm)
+ptratio_sens <- bos_mod$coefficient[4]*sd(boston$ptratio)
+sm <- abs(lstat_sens)+abs(rm_sens)+abs(ptratio_sens)
+lstat_sens<-lstat_sens/sm
+rm_sens<-rm_sens/sm
+ptratio_sens<-ptratio_sens/sm
+barplot(c(ptratio_sens,rm_sens,lstat_sens), horiz = T)
+```
+With chas, we get
+```{r}
+summary(lm(data = boston, medv~lstat+rm+ptratio+chas))
+```
+All variables are significant. The chas is a categorical variable (even though it’s coded as numerical). It
+predicts a higher value by 3.4371 for being along the Charles River
+
+
+(e) Now, re-do the regression from (c), except this time
+a. Split the data into training and testing datasets (70/30 split)
+b. Build the model on the training dataset
+c. Use the model to predict values for the test dataset
+d. How do the results compare, in terms of RMSE?
+    they are the same!
+```{r}
+split_pct <- 0.7
+n <- length(boston$medv)*split_pct # train size
+row_samp <- sample(1:length(boston$medv), n, replace = FALSE)
+train <- boston[row_samp,]
+test <- boston[-row_samp,]
+bos_train_mod <- lm(data = train, medv~lstat)
+test_pred <- predict(bos_train_mod,test)
+test_error <- test$medv - test_pred
+rmse_train <- sqrt(mean(bos_train_mod$residuals**2))
+rmse_test <- sqrt(mean(test_error**2))
+rmse_train
+rmse_test
+```
+We can see that the errors are comparable, an indication that this is a good model.
+    
+    
+(f) For the model in (d), what are the 95% confidence intervals for the parameters, according to the t-values?
+```{r}
+#for intercept
+bos_mod$coefficients[1]+summary(bos_mod)$coefficients[1,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+#for others
+bos_mod$coefficients[2]+summary(bos_mod)$coefficients[2,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+bos_mod$coefficients[3]+summary(bos_mod)$coefficients[3,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+bos_mod$coefficients[4]+summary(bos_mod)$coefficients[4,2]*qt(c(0.025,0.975),length(boston$medv)-4)
+```
+
+
+(g) For the model in (d), what are the 95% confidence intervals for the parameters, using
+a. regular bootstrapping, and
+```{r}
+# regular bootstrap
+coeff1 <- rep(0, 100)
+coeff2 <- rep(0, 100)
+coeff3 <- rep(0, 100)
+coeff4 <- rep(0, 100)
+for(i in 1:100){
+n <- length(boston$medv)
+row_samp <- sample(1:n, n, replace = TRUE)
+bos_samp <- boston[row_samp,]
+6
+temp_mod <- lm(data = bos_samp, medv~lstat+rm+ptratio)
+coeff1[i] <- temp_mod$coefficients[1]
+coeff2[i] <- temp_mod$coefficients[2]
+coeff3[i] <- temp_mod$coefficients[3]
+coeff4[i] <- temp_mod$coefficients[4]
+}
+quantile(coeff1, c(0.025, 0.975))
+quantile(coeff2, c(0.025, 0.975))
+quantile(coeff3, c(0.025, 0.975))
+quantile(coeff4, c(0.025, 0.975))
+```
+
+b. Bayesian bootstrapping?
+```{r}
+# For Bayesian Bootstrapping
+library(DirichletReg)
+
+coeff1 <- rep(0, 100)
+coeff2 <- rep(0, 100)
+coeff3 <- rep(0, 100)
+coeff4 <- rep(0, 100)
+for(i in 1:100){
+n <- length(boston$medv)
+weight <- rdirichlet(1, rep(1,n))
+row_samp <- sample(1:n, n, prob = weight, replace = TRUE)
+bos_samp <- boston[row_samp,]
+temp_mod <- lm(data = bos_samp, medv~lstat+rm+ptratio)
+coeff1[i] <- temp_mod$coefficients[1]
+coeff2[i] <- temp_mod$coefficients[2]
+coeff3[i] <- temp_mod$coefficients[3]
+coeff4[i] <- temp_mod$coefficients[4]
+}
+quantile(coeff1, c(0.025, 0.975))
+quantile(coeff2, c(0.025, 0.975))
+quantile(coeff3, c(0.025, 0.975))
+quantile(coeff4, c(0.025, 0.975))
+```
+
+(h) Looking back at the ggpairs plot, are there any possible variable transformations of the x’s that might help? Try some (be creative!)
+```{r}
+boston$lstat_recip <- 1/boston$lstat
+summary(lm(data = boston, medv~lstat_recip+rm+ptratio+chas))
+```
+
+
+
+
+
+

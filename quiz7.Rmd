@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+A = cbind(1,real_Est$X2.house.age)
+b = real_Est$Y.house.price.of.unit.area
+x = solve(t(A) %*% A) %*% t(A) %*% b
+resid = b - x[1] - x[2]*real_Est$X2.house.age  
+resid_naive = real_Est$Y.house.price.of.unit.area - mean(real_Est$Y.house.price.of.unit.area)
+sqrt(mean(resid_naive^2))
+sqrt(mean(resid^2))
+x
+
+```{r}
+car_multi <- read.csv('cars_multi.csv')
+#head(car_multi)
+#modeling mpg with displacement.
+#summary(lm(data = car_multi, mpg ~ displacement))
+
+#m(data = car_multi, mpg ~ displacement  + weight + acceleration)
+
+A = cbind(1,car_multi$mpg)
+b = car_multi$displacement
+x = solve(t(A) %*% A) %*% t(A) %*% b
+resid = b - x[1] - x[2]*car_multi$mpg 
+resid_naive = car_multi$displacement - mean(car_multi$displacement)
+sqrt(mean(resid_naive^2))
+sqrt(mean(resid^2))
+x
+```
+

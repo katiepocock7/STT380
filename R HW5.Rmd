@@ -1,0 +1,235 @@
+---
+title: "Homework 5 POCOCK"
+output: html_notebook
+---
+Due Thursday, November 10 at 11:59:59pm
+
+1. In the car_multi.csv file, there is a field called acceleration. Calculate
+a. The mean value
+b. The standard deviation
+c. The 5th and 95th quantile
+```{r}
+carsm <- read.csv("cars_multi.csv")
+mean(carsm$acceleration)
+sd(carsm$acceleration)
+quantile(carsm$acceleration,c(0.05,0.95))
+```
+
+2. For this acceleration field, assuming it is normally distributed, conduct a hypothesis test at the 95% confidence level to determine whether you can say the mean value is greater than 15.2. State the null hypothesis. Conduct the hypothesis test by
+    - null hypothesis: the mean value less than or equal to 15.2. 
+a. Constructing an appropriate confidence interval
+b. Calculating a p-value, both by
+i. Analytically
+ii. Running an appropriate simulation
+```{r}
+macc <- mean(carsm$acceleration)
+acc_se <- sd(carsm$acceleration)/sqrt(length(carsm$acceleration))
+LCL <- macc + acc_se*qt(0.05,length(carsm$acceleration) - 1)
+LCL
+```
+Since the lower confidence limit is greater than 15.2, we can say at 95% confidence that the mean value is
+greater than 15.2
+```{r}
+pt((15.2-macc)/acc_se,length(carsm$acceleration) - 1)
+```
+The p-value is 0.004. Since this is less than 0.05, we can say at 95% confidence that the mean value is greater than 15.2
+```{r}
+sim <- 10000
+n <- length(carsm$acceleration)
+mn <- rep(0, sim)
+1
+for(i in 1:sim){
+samp <- 15.2 + sd(carsm$acceleration) * rt(n, n - 1)
+mn[i] = mean(samp)
+}
+p_val <- sum(mn > mean(carsm$acceleration))/sim
+p_val
+```
+The p-value is 0.0038. Since this is less than 0.05, we can say at 95% confidence that the mean value is
+greater than 15.2
+
+
+
+3. A Poisson process generates the following data: {3, 5, 6, 7, 10, 4, 5, 6, 4, 3}, covering 2 second intervals. Run a Monte Carlo simulation to test the hypothesis at a 95% confidence that the rate parameter is greater than 2.
+  null hypothesis: the rate parameter is greater than 2. one-sided
+```{r}
+sim <- 10000
+sampmean <- mean(c(3, 5, 6, 7, 10, 4, 5, 6, 4, 3))
+n <- 10
+mn <- rep(0, sim)
+for(i in 1:sim){
+samp <- rpois(10, 2*2)
+mn[i] = mean(samp)
+}
+p_val <- sum(mn > sampmean)/sim
+p_val
+```
+Since the simulated p-value is less than 0.05, we can say at a 95% confidence that the rate parameter is
+greater than 2
+
+
+4. For the 4 values you calculated in #1, construct 95% confidence intervals using
+a. Regular bootstrapping
+```{r}
+# regular bootstrapping
+data <- carsm$acceleration
+sim <- 10000
+mn <- rep(0,10000)
+accsd <- rep(0,10000)
+acc_5 <- rep(0,10000)
+acc_95 <- rep(0,10000)
+for(i in 1:sim){
+samp <- sample(data, length(data), replace = TRUE)
+mn[i] <- mean(samp)
+accsd[i] <- sd(samp)
+acc_5[i] <- quantile(samp, 0.05)
+acc_95[i] <- quantile(samp, 0.95)
+}
+quantile(mn,c(0.025,0.975))
+quantile(accsd,c(0.025,0.975))
+quantile(acc_5,c(0.025,0.975))
+quantile(acc_95,c(0.025,0.975))
+```
+b. Bayesian bootstrapping
+```{r}
+# Bayesian bootstrapping
+library(DirichletReg)
+data <- carsm$acceleration
+sim <- 10000
+mn <- rep(0,10000)
+accsd <- rep(0,10000)
+acc_5 <- rep(0,10000)
+acc_95 <- rep(0,10000)
+for(i in 1:sim){
+weight <- rdirichlet(1, rep(1,length(data)))
+samp <- sample(data, length(data), prob = weight, replace = TRUE)
+mn[i] <- mean(samp)
+accsd[i] <- sd(samp)
+acc_5[i] <- quantile(samp, 0.05)
+acc_95[i] <- quantile(samp, 0.95)
+}
+quantile(mn,c(0.025,0.975))
+quantile(accsd,c(0.025,0.975))
+quantile(acc_5,c(0.025,0.975))
+quantile(acc_95,c(0.025,0.975))
+```
+
+
+
+
+5. Import the data in the dataset called “longtail.csv.”  Calculate the standard deviation and the 0.99th quantile. Then create 95% confidence intervals for these two quantities, using both regular and Bayesian bootstrapping. Describe what you see with these results.
+```{r}
+longtail <- read.csv("longtail.csv")$x
+sd(longtail)
+quantile(longtail, 0.99)
+```
+
+```{r}
+# regular bootstrapping
+data <- longtail
+sim <- 10000
+lt_sd <- rep(0,10000)
+lt_99 <- rep(0,10000)
+for(i in 1:sim){
+samp <- sample(data, length(data), replace = TRUE)
+lt_sd[i] <- sd(samp)
+lt_99[i] <- quantile(samp, 0.99)
+}
+quantile(lt_sd,c(0.025,0.975))
+quantile(lt_99,c(0.025,0.975))
+
+
+
+# Bayesian bootstrapping
+library(DirichletReg)
+data <- longtail
+sim <- 10000
+lt_sd <- rep(0,10000)
+lt_99 <- rep(0,10000)
+for(i in 1:sim){
+weight <- rdirichlet(1, rep(1,length(data)))
+samp <- sample(data, length(data), prob = weight, replace = TRUE)
+lt_sd[i] <- sd(samp)
+lt_99[i] <- quantile(samp, 0.99)
+}
+quantile(lt_sd,c(0.025,0.975))
+quantile(lt_99,c(0.025,0.975))
+```
+
+
+
+6. #1, page 22, Bayesian Inference - 1. Let’s return to your game of ping-pong. Your friend thinks the possible values for 𝜃, your long-term probability of winning, are 0.4, 0.5, and 0.6, with probabilities 0.2, 0.6, and 0.2, respectively. Suppose you win four games out of five.
+```{r}
+# for entire dataset
+theta <- c(0.4,0.5,0.6)
+prior <- c(0.2,0.6,0.2)
+wins <- 4
+loss <- 1
+lik <- thetaˆwins*(1-theta)ˆloss
+4
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+exp_prior <- sum(theta*prior)
+exp_post <- sum(theta*post)
+exp_prior
+exp_post
+```
+The probability of winning 60% of games is 0.322 or 32.2%. We can see that the expected value increased,
+which makes sense, since the proportion of games won is greater than the expected value of the prior
+
+
+7. #3, page 22-23, Bayesian Inference - Suppose the possible values of 𝜃 = your chances of winning a game of tennis are 0, 0.1, ..., 1, with equal probabilities.
+a. Fill out the rest of this table if you win four games out of seven
+```{r}
+theta <- seq(0,1,by=0.1)
+prior <- rep(1/11,11)
+wins <- 4
+loss <- 3
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+exp_prior <- sum(theta*prior)
+exp_post <- sum(theta*post)
+exp_prior
+exp_post
+```
+
+b. Give a sentence interpreting the posterior probability for theta = 0.3. The probability of winning 30%
+of games is now 0.078, or 7.8%
+c. Find the prior expected value of 𝜃 and the posterior expected value of 𝜃. Write a sentence comparing these two quantities and why their difference makes sense in light of winning 4 games out of 7.
+d. Suppose you play another six games and you win five of them. Compute a new posterior distribution for 𝜃, your likelihood of winning, using the posterior probabilities from (a) as your new prior.
+```{r}
+prior <- post
+wins <- 5
+loss <- 1
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+```
+
+e. Compute the posterior probabilities by considering the data all together (i.e., by considering 13 games of which you won 9). Write 1-2 sentences comparing this posterior distribution with the one you found in (d).
+```{r}
+theta <- seq(0,1,by=0.1)
+prior <- rep(1/11,11)
+wins <- 9
+loss <- 4
+lik <- thetaˆwins*(1-theta)ˆloss
+pr_lik <- prior * lik
+post <- pr_lik/sum(pr_lik)
+cbind(theta, prior, lik,pr_lik,post)
+```
+We can see that we got the same result as when we did the 2 chunks of wins sequentially.
+
+
+
+
+
+
+
+
+
+
+

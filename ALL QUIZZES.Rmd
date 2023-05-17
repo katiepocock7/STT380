@@ -1,0 +1,260 @@
+---
+title: "ALL QUIZZES"
+output: html_notebook
+---
+
+QUIZ 1
+```{r}
+# 1
+sample(1:8,6, replace=TRUE)
+# example output: 1 3 3 1 6 2
+
+#2 
+0.34/(0.34+0.21)
+# answer is 0.6186
+
+#3 
+# Sample space is 0, 1, 2, 3, 4, 5, 6
+# P(1) = 1/6 * 1/2 = 1/12
+
+#4 (a) Table is a cdf.  Reason can be either (last result is a 1) or 
+# (sum of values is not 1)
+# (b) answer is 0.3.  Or  construct the pmf and get the answer that way
+# or take difference of cdf(3) - cdf(1)
+
+#5(a)
+dbinom(2,4,0.3)
+# answer is 0.2646
+#(b)
+1 - pbinom(1,10,0.3)
+# answer is 0.85069
+```
+
+
+QUIZ 2
+```{r}
+# 1. cdf at x = 3 is pmf(1)+pmf(2)+pmf(3) = 0.6
+
+# 2.(a) P(2 < x < 3) = cdf(3) - cdf(2) = 2/3 - 1/2 = 1/6
+# (b) P(x = 4) = 0 (always 0 at exact point for continuous)
+
+# 3.
+1 - ppois(1599, 150 * 10)
+# 0.005453 is answer
+
+# 4.
+qexp(0.5, 1/10)
+# answer is 6.93 seconds
+
+# 5. 
+phyper(1, 4, 48, 15)
+
+# 6.
+pbinom(1, 15, 1/13)
+# 0.677253 (almost the same)
+
+#7.
+1 - pnorm(27000, 20000, 5000)
+# answer is 0.08075666
+
+#8.
+(1 - pnorm(27000, 20000, 5000))/(1 - pnorm(24000, 20000, 5000))
+# answer is 0.3811876
+```
+
+QUIZ 3
+```{r}
+# Quiz 3 solutions (5 points)
+# 1. Customers are entering a store at a random rate of 2/minute.  Use a simulation 
+# (n = 1,000,000) to find the mean value and variance of the number of customers entering
+# in a 5 minute period.
+sim <- rpois(1000000,10)
+mean(sim)
+var(sim)
+# grading: 1 point for rpois, 1 point for 1000000, 2 points for 10, 1 points for use of 
+# mean and var of whatever simulation they did
+
+# 2. A probability distribution has cdf F(x) = 0.125x3, where x is between 0 and 2.  
+# Invert this to find the quantile function, and create a simulation of 1,000,000 
+# outcomes to estimate the mean value.
+
+# Quantile function is q(x) = 2*cube root(x)
+sim <- 2 * runif(1000000)^(1/3)
+mean(sim)
+# grading: 2 points for inversion of cdf.  2 points for use of runif.  1 point each for 
+# 1000000 and mean()
+
+
+# 3. 
+# Suppose you are taking a ridiculously long final exam, and you will not finish.  
+# You have 2 potential strategies: finish as many questions as you can, or work to get
+# as many possible correct.  If you work quickly, you can do 30 questions, with a 40% 
+# chance of getting any question correct.  If you work on getting them correct, you can 
+# do 18 questions, but you have a 70% chance of getting any question correct.
+
+# (a) Which alternative has the better expected value of number of questions correct?
+# (b) Suppose you calculated that you need to get at least 16 questions correct to pass. '
+# Which alternative gives you the better chance to get at least 16 questions correct?
+# (a)
+# E1 = 30 * 0.4 = 12
+# E2 = 18 * 0.7 = 12.6
+# Second option is better
+# (b)
+ch_1 <- 1 - pbinom(15, 30, 0.4)
+ch_2 <- 1 - pbinom(15, 18, 0.7)
+ch_1
+ch_2
+# 1st option is better
+# grading: 2 points each for expected value calculation.  Use of simulation is fine if
+# it gives approximate answer.  For b, 1 point for using pbinom, 1 point for using 15, 
+# 2 points for using "1`-"`
+
+#4 
+# (a) Find the covariance and correlation between Sepal.Width and Sepal.Length.
+cov(iris$Sepal.Width,iris$Sepal.Length)
+cor(iris$Sepal.Width,iris$Sepal.Length)
+# (b) Give the command for finding the covariance matrix of the numerical fields for iris.
+cov(iris[1:4])
+# grading: 6 points
+# 2 points each for correct cov and cor result in (a).  2 points for correct covariance
+# matrix in (b)
+
+```
+
+QUIZ 4
+```{r}
+# 1. A haunted mansion has a variable number of ghosts passing through it.  
+# It is thought that the number of ghosts each night fits an exponential 
+# distribution.  Over the last week leading up to Halloween, a pair of intrepid 
+# ghost watchers observed the following number of ghosts: 4, 1, 3, 7, 2, 1, 2.  
+# Use maximum likelihood estimation to estimate the parameter for the number of ghosts.
+
+samp <- c(4, 1, 3, 7, 2, 1, 2)
+
+log_lik <- function(lambda) sum(log(lambda*exp(-1*lambda*samp)))
+# can use dexp also, or other expressions of likeihood
+optimize(log_lik, c(0, 4), maximum  = TRUE)
+# answer should be about 0.35 (exact value will vary some)
+
+# -2 if they get answer right, but not log in lik expression
+
+# 2. After the zombie apocalypse, a group of 20 people are barricaded in a 
+# medieval castle.  Outside the castles is a horde of zombies.  The 20 people 
+# don't agree about the number of zombies; the average number of zombies seen 
+# is 150 with standard deviation 40.  If the number of zombies is normally 
+# distributed, create a 99% 2-sided confidence interval for the number of 
+# zombies outside the castle.
+150 + 40/sqrt(20)*qt(c(0.005,0.995), 20 - 1)
+# answer should be ~[124, 176]
+# 2 points max if they used qnorm
+# 3 points if other parts are correct but they used 0.01, 0.99 quantiles
+
+# 3 A group of vampire hunters are crafting wooden stakes that will be strong 
+# enough to kill a vampire.  The minimum pressure for a wooden stake to kill 
+# a vampire is 250 Megapascals.  A group of wooden stakes are fabricated with
+# identical properties, and 10 are strength-tested.  The pressure measured that
+# they can withstand is 260 Megapascals, with a standard deviation of 10 
+# Megapascals.  They want to be 99% sure that the stake will kill the vampire.
+
+# (a) What kind of confidence interval will you use?
+# 1-sided confidence interval (2 points)
+
+# (b) To a 99% confidence, will the wooden stakes kill vampires?
+260 + 10/sqrt(10)*qt(0.01, 9)
+# result should be 251.0778.  Since this is higher than 250, the stakes will work.
+# 4 points for this.  2 points for using q = 0.005 if other parts are correct
+# 1 point if used qnorm
+# can also be done as hypothesis testing and calculate p-value
+```
+
+QUIZ 5
+```{r}
+# 1 
+H0mean <- 6
+sampmean <- mean(iris$Sepal.Length)
+n <- 150
+mn <- rep(0,100000)
+for(i in 1:100000){
+  samp <- H0mean + sd(iris$Sepal.Length)*rt(n, n-1)
+  mn[i] <- mean(samp)
+}
+sum(mn < sampmean)/100000
+
+# p-value should be close to 0.01.  Very flexible as to above structure
+# Therefore, we have disproved null hypothesis.
+
+# 2
+theta <- seq(0.05,0.95, by = 0.1)
+prior <- rep(0.1,10)
+lik <- theta * (1-theta)^4
+posterior <- prior *lik/sum(prior * lik)
+posterior
+
+# 3
+alphapost <- 3 + 4
+betapost <- 3 + 6
+# Form is a Beta(7, 9) distribution
+# mean value is 7/(7+9)=7/16
+# For confidence interval
+qbeta(c(0.025,0.975),7,9)
+
+# 4
+A <- cbind(c(0.3,0.7),c(0.5,0.5))
+# stable state can be found either by iterating:
+x<- as.matrix(c(1,0))
+for(i in 1:50){
+  x <- A%*%x
+}
+x
+# or from eigenvalues
+eigen(A)$vectors[,1]/sum(eigen(A)$vectors[,1])
+
+```
+
+
+QUIZ 6
+```{r}
+#1 (3 points)
+# degrees of freedom = 395, 3 parameters solved for, so
+# data points - 3 = 395 or 398 data points
+# 2/3 points if they got something about relationship between
+# data points, degrees of freedon, and parameters correct
+
+#2 (3 points)
+# does not match assumptions of linear regression since variance changes as
+# x changes
+# +1 bonus point (4 points total) if they mention "heterosskastic" (misspelled is ok)
+# 1 point if they give wrong answer but mention correct fact about lienar regression
+# assumptions
+
+# 3 
+#(a) 3 points
+summary(lm(data = cars_multi, mpg~displacement))
+# output given
+
+#(b) 4 points
+A <- cbind(1,cars_multi$displacement)
+b <- as.matrix(cars_multi$mpg)
+x <- solve(t(A)%*%A)%*%t(A)%*%b
+x
+
+#4 (a) 3 points
+# Find E(y | (x1, x2) = (1, 1))
+3.1 * 1 - 2*1+1.1
+# answer is 2.2
+
+# (b) 4 points (I proved in class that Resid SE was 0.4)
+pt((1.5-2.2)/0.4,22 - 3)
+# probability is about 0.048
+
+# 5 (6 points) (points booster)
+2*2
+# answer is 4
+
+```
+
+
+
+
+
+

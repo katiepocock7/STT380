@@ -1,0 +1,97 @@
+---
+title: "quiz 5"
+output: html_notebook
+---
+The iris dataset contains a field called Sepal.Length.  Its mean is 5.843 and standard deviation is 0.828066.  There are 150 data points in the set.  Assuming sepal.length is normally distributed, use a simulation to determine whether can you tell at a 95% confidence level that the mean value is less than 6
+```{r}
+
+
+#5.843 + 0.828066/sqrt(150)*qt(c(0.025,0.975), 150-1)
+
+trials <- 1000
+sampmean <- 5.843
+n <- 150
+H0mean <- 6
+simmean <- rep(0,trials)
+for(i in 1:trials){
+  simsamp <- rexp(n, 1/H0mean)
+  simmean[i] <- mean(simsamp)
+}
+p_value <- sum(simmean < sampmean)/trials
+p_value
+```
+
+
+
+
+We will do a Bayesian analysis for how often we win a Monopoly game.  Our possible values of winning 0.05, 0.15, 0.25, ... , 0.95.  The prior is that these are equally likely.  Then we start playing Monopoly.  It takes 3 years to play 5 games.  For these 5 games we win 1.  Construct the posterior for this distribution
+```{r}
+theta <- c(0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95)
+prior <- c(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+n <- 5
+win <- 1
+posterior <- prior*dbinom(win,n,theta)/sum(prior*dbinom(win,n,theta))
+posterior
+
+```
+
+
+A player is trying to figure out how likely it is to win a game.  The prior the player has is a beta(3, 3) distribution.  After playing 10 games, the player has won 4.
+(a) What is the form of the posterior distribution?
+
+(b) What is the mean value?
+```{r}
+alpha <- 3
+beta <- 3
+games <- 10
+wins <- 5
+alpha_post <- alpha + wins
+beta_post <- beta + games - wins
+print(alpha_post)
+print(beta_post)
+y_post <-dbeta(x,alpha_post,beta_post)
+
+mean(y_post)
+```
+
+
+(c) Construct a 95% confidence interval for the mean value
+```{r}
+alpha <- 3
+beta <- 3
+print(qbeta(0.025,alpha,beta))
+print(qbeta(0.975,alpha,beta))
+x <- seq(0,1, by = 0.01)
+y <- dbeta(x,alpha,beta)
+```
+
+
+
+
+
+A 2-state Markov chain has the form
+
+s1 --> 0.3s1 + 0.7s2
+
+s2 --> 0.5s1 + 0.5s2
+
+Find a stable end state if the initial state is (1, 0).  (Make sure the state is the right size)
+```{r}
+P <- cbind(c(0.3,0.7),c(0.5,0.5))
+x0 <- as.matrix(c(1,0)) 
+x1 <- P %*% x0
+x1
+eigen(P)
+```
+
+
+
+
+
+
+
+
+
+
+
+

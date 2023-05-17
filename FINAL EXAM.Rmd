@@ -1,0 +1,172 @@
+---
+title: "FINAL EXAM"
+output: html_notebook
+---
+
+
+```{r}
+turtle <- read.csv('turtle.csv')
+head(turtle)
+```
+
+(a) A group of 30 turtles are moving along the seashore.  It is estimated that, on average, 70% of them will go into the ocean.  What is the probability that exactly 20 turtles go into the ocean?
+```{r}
+#dbinom(20, 0.70*30)
+dbinom(20,30,0.7)
+  
+
+```
+(b) While running along a road, a person sees turtles on a random basis.  The person sees on average 1 turtle every 5 minutes.  If they run along the road for 25 minutes, what is the probability that they see at least 4 turtles?
+```{r}
+1 - ppois(4, 0.20*25)
+```
+
+(a) The size of turtles (measuring the length of the shell) from end to end is normally distributed, with mean 25 cm and standard deviation 5 cm.  Picking 1 turtle from random, what is the probability that the length of the turtle shell is less than 22 cm?
+```{r}
+pnorm(22,25,5)
+
+```
+(b) I am waiting for my pet tortoise to come walk to me.  The waiting time is exponentially distributed with mean value 8 minutes.  What is the probability that I will wait between 7 and 10 minutes?
+```{r}
+pexp(10,1/8) - pexp(7,1/8)
+
+```
+
+
+
+Among a group of turtles, 70% of them are box turtles.  40% of the turtles overall have yellow markings.  35% of the turtles are both box turtles and have yellow markings.  What percent of the turtles are neither box turtles nor have yellow markings?
+
+
+
+Among a group of turtles, most are friendly.  Some of the turtles are snapping turtles. 95% of the group are friendly turtles that are not snapping turtles.  4% of the turtles are snapping turtles which are unfriendly.  1% of all the turtles are friendly snapping turtles. 
+(a) What is the probability that a turtle is friendly, given it is a snapping turtle? 
+
+
+(b) What is the probability that a turtle is friendly, given it is not a snapping turtle
+
+
+
+A turtle needs lettuce to eat.  To get this lettuce, she has two options.  She can raid Farm A, where there is a 40% chance of getting 400 grams of lettuce, a 40% chance of getting 260 grams of lettuce, and a 20% of getting no lettuce.  Or she can raid Farm B, where the lettuce she can get is normally distributed with mean value 330 grams and standard deviation 150 grams
+
+(a) Which choice has the better expected value of the amount of lettuce?
+```{r}
+0.40*400 + 0.40*260 + 0.20*0
+```
+
+(b) If the turtle needs 250 grams of lettuce to avoid being hungry, which option maximizes her chances?
+```{r}
+dbinom(250,330,40/100)
+```
+
+
+
+
+A set of 12 box turtles have their shells measured.  The measurements yield a mean value of 14 cm with a standard deviation of 1.5 cm.  If the length of the shells is normally distributed, construct a 99% 2-sided confidence interval for the mean length of the box turtle shell
+```{r}
+14 + 1.5/sqrt(length(12))*qt(c(0.005,0.995), 12-1)
+```
+
+
+
+Take a look at the y field in the turtle dataset, which represents the length of the shells for a set of turtles.  For a certain turtle type, the average shell length is 50 cm.  Construct a hypothesis test at the 90% level to determine whether the average shell length in the dataset is different from 50 cm
+```{r}
+#turtle$y
+#sd(turtle$y)
+
+mean(turtle$y) - sd(turtle$y)/sqrt(length(turtle$y)) * qt(0.90,length(turtle$y)-1)
+
+```
+
+
+
+There is a particular type of lettuce which some turtles like and other turtles don't.  Scientists don't know what the probability, so they approximate their prior with a grid from 5% to 95% (in steps of 10%) with each of the 10 possibilities having equal probability.  After feeding the lettuce to 15 turtles, 10 turtles like it.  What is the posterior probability that 65% of turtles like the lettuce?
+```{r}
+theta <- seq(0.5,.95, by = 0.10)
+prior <- c(rep(1/length(theta)), length(theta))
+
+# play 12, win 4
+n <- 15
+wins <- 10 # turtles that like is a win
+posterior <- prior*dbinom(wins,n,theta)/sum(prior*dbinom(wins,n,theta))
+posterior
+```
+
+For the previous problem, suppose instead that the scientists' prior is a Beta(5,3) distribution.  Again, of the 15 turtles that the lettuce is fed to, 10 turtles like it.  What is the posterior probability that less than 50% of turtles like the lettuce?
+```{r}
+beta(5,3)
+beta(15,7)
+
+sim <- rexp(1000000, 1-0.141444) 
+mean(sim)
+sd(sim) 
+```
+
+
+
+A turtle is wondering between 3 parts of its habitat: a cave, a rocky area, and a wooded area.  If the turtle is in the cave, in any given hour, there is a 70% chance the turtle stating in the cave, a 20% chance it goes to the rocky area, and 10% chance it goes to the wooded area.  If the turtle is in the wooded area, in any given hour, there is a 50% chance it stays there, a 30% chance it goes to the cave, and a 20% chance it goes to the rocky area.  If the turtle is in the rocky area, there is a 10% chance it stays there, there is 60% chance it does to the wooded area, and a 30% chance it goes to the cave.  If the turtle starts in the cave, what is the probability that, after a long period of time, the turtle is in the cave?
+```{r}
+P <- cbind(c(0.7,0.2,0.1),c(0.3,0.5,0.2), c(0.3,0.6,0.1))
+x0 <- as.matrix(c(1,0,0)) 
+x1 <- P %*% x0
+
+eigen(P)$vectors[,1]/sum(eigen(P)$vectors[,1])
+sum(eigen(P)$vectors[,1]/sum(eigen(P)$vectors[,1]))
+
+```
+
+
+
+
+Fill in the blanks.
+t is sample mean/ std error 
+st error of food would be 
+What is the expected length for a male turtle that has eaten 100 grams a day while growing?
+```{r}
+E equation
+```
+What is the probability that a female turtle that eats 120 grams a day while growing will be at least 25 cm long?
+```{r}
+
+```
+
+
+```{r}
+realestate <- read.csv('Real estate.csv')
+head(realestate)
+```
+Using the real estate dataset, produce a linear regression model to predict house price per unit area, using the 2 other variables which correlate the most strongly to it.  Determine whether the model is a good model in terms of the coefficients and by making a suitable comparison to a baseline model.
+```{r}
+cor(realestate)[8,]
+rs_model <- lm(data = realestate, Y.house.price.of.unit.area ~ X1.transaction.date + X3.distance.to.the.nearest.MRT.station)
+#rs_model
+
+summary(rs_model)
+```
+
+The coefficients are significant, from looking at the t values and Pr(>|t|). The R-squared value and errors
+decreased significantly, so this overall is a good model
+
+
+
+
+A regression is performed at lag 2.  The coefficient of the lagged x is 0.451 and the intercept is 8.323.  Below is a table of the most recent values.  Use the model to make prediction for y for January 2023.
+```{r}
+# lagged regression
+summary(lm(31.812~lag(41.581,6)))
+summary(lm(31.812~lag(41.581,6)+lag(26.913,7)))
+
+```
+
+
+
+
+
+A certain random variable X has the form of a binomial distribution with n = 20 and p = 0.4.  Use a simulation to estimate the expected value of X
+```{r}
+mean(rbinom(100000,20,0.4))
+```
+
+
+
+
+

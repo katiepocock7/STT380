@@ -1,0 +1,209 @@
+---
+title: "Homework 1 solutions"
+author: "Paul Speaker"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.	For 2 events A and B, the probability of A occurring is 0.50, and the probability of B occurring is 0.4. The probability of neither A nor B occurring is 0.4. 
+(a) What is the probability of A or B occurring?
+$$P(A \cup B) = 1 - P(~A \cap ~B) = 1 -0.4 =0.6 $$
+
+(b) What is the probability of A and B occurring?
+$$P(A \cap B) + P(A \cup B) = P(A)+P(B)$$
+$$P(A \cap B) = 0.5+0.4-0.6=0.3$$
+2. 2 6-sided dice are rolled (each with values 1, 2, 3, 4, 5, 6). The outcome of the roll is found by the difference between the larger and smaller numbers (so that if a 3 and 5 are rolled, the result is a 2, if a 5 and a 1 is rolled, the results is a 4, if the results is a 3 and a 3, the results is a 0, etc.) 
+a.	Find the sample space.
+$$S = \{ 0,1,2,3,4,5 \}$$
+b.	Find the probability that the result is a 1.
+$$P(1)=N(1)/N$$
+There are 10 ways to get a 1 (have to count both directions) out of 36, so answer is $10/36=5/18$
+
+c.	Create a simulation of 10,000 rolls of the 2 dice.  Calculate the difference, and find the proportion of rolls for which the result is a 1.  Does your result approximately agree with what you got in (b)?
+```{r HW1#2c, echo=TRUE}
+
+d1 <- sample(1:6, 10000, replace =TRUE)
+d2 <- sample(1:6, 10000, replace =TRUE)
+outcome <- abs(d1-d2)
+sum(outcome==1)/10000
+```
+This result approximately agrees with the answer in (b)
+
+3. In a certain game, 1 6-sided die is rolled and 2 coins are flipped. A person will win if the die rolls exactly the same value as the number of heads flipped. 
+a.	What is the probability of winning the game?
+
+Solution: two ways to win: 1 head and rolling a 1, or 2 heads and rolling a 2.
+P(1 head and rolling a 1) = 1/2 * 1/6 = 1/12
+P(2 heads and rolling a 2) = 1/4 *1/6 = 1/24
+Total: 1/12 + 1/24 = 1/8 = 0.125
+
+b.	Create a simulation of 10,000 plays of the game.  Does the number of wins approximately agree with (a)?
+```{r, echo=TRUE}
+win <- 0
+for(i in 1:10000){
+  head <- sample(c(0,1),2, replace =TRUE)
+  die <- sample(1:6,1)
+  win <- win + sum(sum(head)==die)
+  }
+win/10000
+```
+
+The result approximately matches the previous part.
+
+5(a)
+```{r, echo=TRUE}
+deMere1 <- function(){
+  win <- 0
+  x <- sample(1:6, 4, replace = TRUE)
+  if(sum(x==6) > 0){
+    win = 1
+  }
+  return(win)
+}
+deMere1()
+```
+
+b.
+```{r, echo=TRUE}
+deMere1WinProb <- function(numRep){
+  win <- 0
+  for(i in 1:numRep){
+    if(deMere1()==1){
+      win=win+1
+    }
+  }
+  prop <- win/numRep
+  return(prop)
+}
+
+deMere1WinProb(50000)
+```
+The result is slightly over 50%.
+
+
+c. 
+```{r, echo=TRUE}
+deMere2 <- function(){
+  sixes <- 0
+  for(i in 1:24){
+    die <- sample(1:6,2, replace = TRUE)
+    if(sum(die==6) == 2){
+      sixes = 1
+    }
+  }
+  return(sixes)
+}
+deMere2()
+```
+
+
+d.
+```{r, echo=TRUE}
+deMere2WinProb <- function(numRep){
+  win <- 0
+  for(i in 1:numRep){
+    if(deMere2()==1){
+      win=win+1
+    }
+  }
+  prop <- win/numRep
+  return(prop)
+}
+
+deMere2WinProb(50000)
+```
+The probability is slightly under 0.5.
+
+
+e.
+```{r, echo=TRUE}
+deMere1Wins <- replicate(50000,deMere1())
+```
+f. 
+```{r, echo=TRUE}
+val <- replicate(49991,0)
+cumul <- replicate(49991,0)
+for(i in 10:50000){
+  val[i] <- i
+  cumul[i] <- sum(deMere1Wins[1:i])/i
+}
+plot(9+val,cumul,type = "l")
+```
+
+g. 
+```{r, echo=TRUE}
+deMere2Wins <- replicate(50000,deMere2())
+val <- replicate(49991,0)
+cumul <- replicate(49991,0)
+for(i in 10:50000){
+  val[i] <- i
+  cumul[i] <- sum(deMere2Wins[1:i])/i
+}
+plot(9+val,cumul,type = "l")
+```
+(a) Answer: would guess that most likely answer is 0, since that's the result for getting 1/2 heads and 1/2 tails.
+
+b.
+```{r, echo=TRUE}
+lukeWinnings <- function(numRep){
+ winval <- replicate(numRep, 0)
+ for(i in 1:numRep){
+   samp <- sample(c(0,1), 40, replace = TRUE)
+   winval[i] <- sum(samp==1) - sum(samp==0)
+ }
+ pmf <- replicate(41,0)
+ score <- replicate(41,0)
+  for(i in 1:41){
+   score[i] <- 2*i - 42
+     pmf[i] <- sum(winval == score[i])/numRep
+  }
+ return(pmf)
+}
+Lukepmf <- lukeWinnings(100000)
+```
+
+
+(c)
+```{r, echo=TRUE}
+plot(2*1:41-42, Lukepmf, type = "l")
+```
+(d)
+My guess would be it is about 20 (but I would be wrong!)
+
+(e)
+```{r, echo=TRUE}
+tmp <- sample(c(0,1),40,replace = TRUE)
+runtotal <- 2*cumsum(tmp) - 1:40
+runtotal
+```
+
+(f) 
+```{r, echo=TRUE}
+leadDist <- function(numRep){
+  pmf <- replicate(41,0)
+  leads <- replicate(numRep,0)
+  for(i in 1:numRep){
+    tmp <- sample(c(0,1),40, replace = TRUE)
+    runtotal <- 2*cumsum(tmp) - 1:40
+    leads[i] = sum(runtotal>0)
+  }
+  for(i in 1:41){
+    pmf[i] = sum(leads == i - 1)/numRep
+  }
+  return(pmf)
+}
+leadpmf<-leadDist(1000000)
+```
+
+(g) 
+```{r, echo=TRUE}
+plot(0:40,leadpmf,type = "h")
+```
