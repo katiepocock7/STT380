@@ -1,0 +1,423 @@
+---
+title: "ICA 15,16,17,18,19 STT 380"
+output: html_notebook
+---
+
+ICA 25
+
+ this problem, we will use the mtcars dataset.
+```{r}
+data('mtcars')
+```
+ 
+1. The fuel efficiency of a set of 25 cars is calculated to be 22.3 mpg with a standard deviation of 5. We
+want to determine whether this value is statistically different from 20.09 mpg, which is the mean mpg
+value in the mtcars dataset, at the 95% confidence level.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+        The null hypothesis is that the fuel efficiency is =20.09 mpg. This is two-sided
+(b) Determine whether the null hypothesis is or is not falsified, by
+  (i) examining an appropriate confidence interval
+```{r}
+22.3 - 5/sqrt(25) * qt(0.95, 24) 
+22.3 + 5/sqrt(25) * qt(0.95, 24) 
+
+```
+
+  (ii) finding the p-value of the test result.
+```{r}
+stand_error <- 5/sqrt(25)
+t_val <- ((22.3 - 20.09) / stand_error)
+pt <- pt(t_val, 24)
+2* (1 - pt)
+```
+
+
+2. Sellers typically sell on average $5,300 in product per day. A new ad campaign has started for the
+products, and over the last several days sellers have sold $5,425 in products per day, with a standard
+deviation of $500, covering 38 person-days. We want to determine whether, at a 90% confidence level,
+sales have improved.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+      Average = 5300 in product per day, one-sided because just looking at an increase
+(b) Determine whether the null hypothesis is or is not falsified, by
+(i) examining an appropriate confidence interval
+```{r}
+5425 - 500/sqrt(38) * qt(0.90,37)
+
+```
+
+(ii) finding the p-value of the test result.
+```{r}
+stand_error2 <- 500/sqrt(38) 
+t_val2 <- ((5425 - 5300 ) / stand_error2)
+pt <- pt(t_val2, 37)
+1 - pt
+
+```
+
+(c) Suppose the mean value of $5,425 continues to be the case. How many person-days would it take to
+say that the ad campaign worked at a 99% confidence level?
+
+```{r}
+n = 90
+stand_error2 <- 500/sqrt(n) 
+t_val2 <- ((5425 - 5300 ) / stand_error2)
+pt <- pt(t_val2, n-1)
+1 - pt
+```
+
+
+
+
+
+class ex. h0=3 (null hyp mean). sample mean=4, samp standered error = 1, n= whatevs. w sample se {3,2.5,3.4,4.7,2.6,1.7}. then p =1/5 for a one sided. because one of the vals in the sample set have a greater difference than 1 (4-3); and it is the 4.7 val cause it is (4.7-3) a difference of 1.7. for two sided you would have 2/6 cause the 1.7 and the 4.7 are both greater differences than 1. 
+
+
+
+
+ICA 16
+
+1. The fuel efficiency of a set of 25 cars is calculated to have a mean value of 22.3 mpg with a standard deviation of 5. We want to determine whether this value is statistically different from 20.09 mpg, the mpg value in the mtcars dataset, at the 95% confidence level.
+(a) State the null hypothesis. Is it one-sided or two-sided?
+            The null hypothesis is that the fuel efficiency is =20.09 mpg. This is two-sided
+(b) Determine whether the null hypothesis is or is not falsified, by a Monte Carlo simulation with 100,000 runs. What is the p-value? Compare your result to what you got last Wednesday.
+```{r}
+trials <- 100000
+sampmean <- 22.3
+H0mean <- 20.09
+sampsd <- 5
+n <- 25
+p_value <- 0
+sampse <- sampsd/sqrt(n)
+simmean <- rep(0,trials)
+for(i in 1:trials){
+  simsamp <- H0mean + sampsd*rt(n, n - 1) 
+  simmean[i] <- mean(simsamp)
+}
+p_value <- sum(abs(simmean - H0mean) > abs(sampmean - H0mean))/trials
+p_value
+
+```
+
+
+
+2. A set of sample data follows an exponential distribution. The set has 750 samples with a mean value of 30. Perform a hypothesis test with simulation (10,000 runs) to determine whether the mean value is 95% likely to be greater than 28
+```{r}
+trials <- 10000
+sampmean <- 30
+n <- 750
+H0mean <- 28
+simmean <- rep(0,trials)
+for(i in 1:trials){
+  simsamp <- rexp(n, 1/H0mean)
+  simmean[i] <- mean(simsamp)
+}
+p_value <- sum(simmean >= sampmean)/trials
+p_value
+```
+
+
+
+class ex. sample set = {1,4,3,2,2}
+cdf(x=0) = 0/5
+cdf(x=1.5) = 1/5 (what is less than or equal to 1 in the samp set; 1. so that over numb of values)
+cdf(x=2) = 3/5 cause 1,2,2 are all less than or equal to x
+
+
+- for doing regular bootstrap you don't define prob within sample() since it is assumed each value of the sample code has equal probability
+
+```{r}
+# regular bootstrap 
+mpgmean <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+sample(mtcars$mpg, length(mtcars$mpg), replace = TRUE)
+for(i in 1:10000){
+  mpgsamp <- sample(mtcars$mpg, length(mtcars$mpg), replace = TRUE)
+  mpgmean[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+#hist(mpgmean, breaks=30)
+```
+
+```{r}
+#baysian
+library(DirichletReg)
+weight <- rep(0,length(mtcars$mpg))
+mpgmean <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+for(i in 1:10000){
+  weight <- rdirichlet(1, rep(1,length(mtcars$mpg)))
+  mpgsamp <- sample(mtcars$mpg, length(mtcars$mpg), prob = weight, replace = TRUE)
+  mpgmean[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+```
+
+
+
+ICA 17
+
+In-Class Assignment 17
+For this problem we will be looking at the data in the hypodata.csv file.
+1. Read the data into R.
+```{r}
+hypodata <- read.csv('hypodata.csv')
+
+```
+
+2. Find the mean, standard deviation, and standard error.
+```{r}
+mean(hypodata$x)
+sd(hypodata$x)
+sd(hypodata$x)/sqrt(length(hypodata$x))
+```
+
+3. Assuming the data is normal, build a 99% (2-sided) confidence interval with the t distribution.
+```{r}
+#mn + se*qt(c(0.005,0.995), length(data) - 1) =
+mean(hypodata$x) + sd(hypodata$x)/sqrt(length(hypodata$x))*qt(c(0.005,0.995), length(hypodata)-1)
+
+```
+
+4. Next, use standard bootstrapping to build the 99% confidence interval.
+```{r}
+datamean <- rep(0,10000)
+datasd <- rep(0,10000)
+for (i in 1:10000) {
+  datasamp <- sample(hypodata$x, length(hypodata$x), replace = TRUE)
+  datamean[i] <- mean(datasamp)
+  datasd[i] <- sd(datasamp)
+}
+quantile(datamean, c(0.005, 0.995)) 
+
+```
+
+5. Use the Bayesian bootstrapping to build the 99% confidence interval.
+```{r}
+library(DirichletReg)
+weight <- rep(0,length(hypodata))
+mpgmean_b <- rep(0,10000)
+mpgmedian <- rep(0,10000)
+mpg90 <- rep(0,10000)
+mpgsd <- rep(0,10000)
+for(i in 1:10000){
+  weight <- rdirichlet(1, rep(1,length(hypodata)))
+  mpgsamp <- sample(hypodata, length(hypodata), prob = weight, replace = TRUE)
+  mpgmean_b[i] <- mean(mpgsamp)
+  mpgmedian[i] <- median(mpgsamp)
+  mpg90[i] <- quantile(mpgsamp, 0.9)
+  mpgsd[i] <- sd(mpgsamp)
+}
+quantile(mpgmean_b, c(0.025, 0.975))
+quantile(mpgmedian, c(0.025, 0.975))
+quantile(mpg90, c(0.025, 0.975))
+quantile(mpgsd, c(0.025, 0.975))
+
+```
+
+6. Plot a histogram of the simulations in (4) and (5). Does it look like the simulated means fit a
+normal distribution?
+
+```{r}
+hist(mpgmean_norm, breaks=30)
+hist(mpgmean_b, breaks=30)
+```
+
+
+7. How do the 3 confidence intervals compare?
+
+8. Next, use both standard and Bayesian bootstrapping to build a 99% CI for the standard
+deviation. Plot a histogram of each. Is the graph symmetric or skewed?
+
+```{r}
+quantile(mpgmean_b, c(0.005, 0.995))
+quantile(mpgmean_norm, c(0.005, 0.995))
+
+
+```
+
+
+
+
+
+
+DAY 18
+
+Setup for Bayesian Inference - 
+◦ The answer comes from Bayes’s Formula:
+      P(A|B) = P(A)* P(B|A) / P(B)
+◦ In Bayes’s Theorem,
+◦ P(A) is the prior probability (the initial weight)
+◦ P(B|A) is the likelihood (the probability of the new information, given that alternative
+is true)
+◦ For example for the p = 0.1 case, the probability of winning two games out of 5 is given
+by the binomial distribution: P(B|A) = 10*0.12*0.93
+◦ P(B) is the sum of the probabilities for all numerators
+◦ “normalization” factor
+
+
+
+
+
+
+ICA 18 (11/7)
+
+1. Suppose in the ping pong example you have prior probabilities of 0.1, 0.3, and 0.6 for winning 20%, 40%, or 60% of the games.
+After playing 4 games, you win 2 and lose 2.  What are your posterior probabilities after these 4 games?
+```{r}
+theta <- c(0.2,0.4,0.6)
+prior <- c(0.1,0.3,0.6)
+n <- 4
+win <- 2
+posterior <- prior*dbinom(win,n,theta)/sum(prior*dbinom(win,n,theta))
+posterior
+```
+  (Use the original prior probabilities and disregard the results of (a)) Next, simulate wins and losses from a distribution with a 40% chance of winning     (you can use runif(0,1) and if it is less than 0.4, it counts as a win; otherwise, a loss).  
+Run an iteration and compute the posterior probabilities each time.  
+About how many times do you play before the posterior odds for winning 40% reach 0.9?
+```{r}
+#rbinom(100,4,0.4)
+theta <- c(0.2,0.4,0.6)
+prior <- c(0.1,0.3,0.6)
+games <-0
+while (prior[2] < 0.9 ){
+  n <- 1
+  win <- rbinom(1,1,0.4)
+  posterior <- prior*dbinom(win,n,theta)/sum(prior*dbinom(win,n,theta))
+  games = games+1
+}
+
+posterior
+games
+```
+
+
+2. Suppose the prior weights for the probability of winning a game is proportional to sin(πx).  Suppose after 30 games you win 10.   
+Use a grid discretization (100 cells) to find the posterior probabilities.  
+```{r}
+x <- seq(0,1, by = 0.01)
+prior <- sin(pi*x)/sum(sin(pi*x))
+plot(prior)
+# play 12, win 4
+n <- 30
+wins <- 10
+posterior_123 <- prior*dbinom(wins,n,theta)/sum(prior*dbinom(wins,n,theta))
+
+```
+
+Graph the prior and posterior together.
+```{r}
+plot(posterior_123)
+points(prior)
+```
+
+Is the mean value of the posterior closer to 0.5 (the mean value of the prior) and 1/3 (the proportion of games won)? 
+```{r}
+mean(posterior_123*x*100)
+```
+
+
+
+
+
+
+
+
+
+ICA 19
+
+
+A data science model trained on data predicts that 30% of customers will buy a product, but the uncertainty in the model is such that the standard deviation of this proportion is 0.2.
+1. Use the EstBetaParams function at the top of page 39 to convert these values into parameters for a Beta distribution.
+```{r}
+estBetaParams <- function(mu, var) {
+alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+beta <- alpha * (1 / mu - 1)
+return(params = list(alpha = alpha, beta = beta))
+}
+estBetaParams(0.3, 0.2^2)
+
+```
+
+2. Use qbeta to construct a 95% confidence interval for the true proportion.
+```{r}
+alpha <- 1.275
+beta <- 2.975
+print(qbeta(0.025,alpha,beta))
+print(qbeta(0.975,alpha,beta))
+x <- seq(0,1, by = 0.01)
+y <- dbeta(x,alpha,beta)
+```
+
+3. A soft release of the product is made to 10 customers, resulting in 5 sales.  Construct the beta posterior from this information.
+```{r}
+release <- 10
+sales <- 5
+alpha_post <- alpha + sales
+beta_post <- beta + release - sales
+print(alpha_post)
+print(beta_post)
+y_post <-dbeta(x,alpha_post,beta_post)
+```
+
+4. Calculate the new mean and standard deviation for the posterior.
+```{r}
+mean(y_post)
+sd(y_post)
+```
+
+5. Plot the posterior and prior beta distributions together.  How do they compare?
+```{r}
+plot(x,y, ylim = c(0,5), type="l")
+lines(x,y_post,col="red")
+```
+The black line is the prior distribution; it hits a maximum y value at a lower x value than the other graph. the posterior graph has a bigger max value. 
+
+
+6. The product will be profitable if at least 30% of customers purchase the product.  Based on the posterior, what is the probability that at least 30% will purchase the product?
+```{r}
+greater_or_equal <- length(y_post[y_post>=0.3])
+total <- length(y_post)
+
+prob <- greater_or_equal/total
+prob
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,83 @@
+---
+title: "ICA 9 POCOCK"
+output: html_notebook
+---
+
+Open the pizza dataset.
+```{r}
+pizza <- read.csv("pizza.csv")
+pizza
+```
+
+a. Calculate the covariance and correlation between moisture and cal using cov and cor
+```{r}
+cor(pizza$mois, pizza$cal)
+cov(pizza$mois, pizza$cal)
+
+```
+
+b. Verify the cov value by calculating E(XY) – E(X)E(Y) (will not be exact)
+```{r}
+mean(pizza$mois*pizza$cal) - (mean(pizza$mois)*mean(pizza$cal))
+```
+
+c. Verify the cor value by diving the covariance by the product of standard deviations
+```{r}
+cov(pizza$mois, pizza$cal)/(sd(pizza$cal)* sd(pizza$mois))
+```
+
+d. Examine the entire correlation matrix. Which variable has the strongest correlation with cal?
+```{r}
+cor(pizza$cal, pizza$mois)
+cor(pizza$cal, pizza$prot)
+cor(pizza$cal, pizza$fat)
+cor(pizza$cal, pizza$ash)
+cor(pizza$cal, pizza$sodium)
+cor(pizza$cal, pizza$carb)
+
+```
+calorie and fat have the strongest correlation.
+
+
+
+2. For a multivariate normal definition, define the mean value to be (1, 2), with Var(X) = 2, Var(Y) =1, and the Corr(X, Y) = -0.5.
+a. Create a contour plot for this distribution.
+```{r}
+library(mvtnorm)
+min <- -4
+max <- 5
+var_x <- 2.0
+var_y <- 1.0
+cor_xy <- -0.5
+Sigma <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- seq(min, max, by = 0.1)
+y <- seq(min, max, by = 0.1)
+z <- matrix(nrow=length(x), ncol=length(y))
+co_df <- data.frame('x', 'y', 'z')
+for (i in 1:length(x)){
+  for (j in 1:length(y)){
+    z[i,j] <- dmvnorm(c(x[i],y[j]),c(1,2),Sigma)
+  }
+}
+contour(x, y, z)
+
+co_df <- data.frame('x' = x, 'y' = y)
+df.grad <- expand.grid(x = seq(-4,4, by = 0.1),y = seq(-4,4, by = 0.1))
+dens <- cbind(df.grad, z = dmvnorm(df.grad,c(0,0), Sigma))
+```
+
+b. Create 1,000 simulations of the distribution and create a scatterplot for those
+simulations
+```{r}
+library(MASS)
+?mvrnorm
+plot(mvrnorm(1000, mu = c(1,2)))
+
+```
+
+
+
+
+
+
+

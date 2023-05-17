@@ -1,0 +1,94 @@
+---
+title: "ICA 10 POCOCK"
+output: html_notebook
+---
+
+Define an exponential random variable with parameter λ = 1/3.  Generate 2 sets of simulations of the random variable (call them exp_1 and exp_2) of 10,000 simulations each.  Create a third variable su which is the sum of exp_1 and exp_2.  
+```{r}
+val = 1/3
+
+exp_1 <- rexp(10000, val)
+exp_2 <- rexp(10000, val)
+
+su <- exp_1 + exp_2
+```
+
+Verify that
+E(su) = E(exp_1) + E(exp_2)
+```{r}
+print(mean(exp_1) + mean(exp_2))
+
+
+print(mean(su))
+```
+
+Var(su) = Var(exp_1) + Var(exp_2)
+```{r}
+print(var(exp_1) + var(exp_2))
+
+
+print(var(su))
+```
+
+
+Create 1,000,000 simulations of a multivariate normal random variable similar to the one you worked with in ICA 9 (set var(X) = var(Y) = 1.5, and cor(X,Y) = -0.8), and call it mvn.  x will be the first column of mvn and y will be the second column (for example, x = mvn[,1]).  Create a new variable z which is the sum of the two outputs from the simulation.  
+```{r}
+min <- -4
+max <- 5
+var_x <- 1.5
+var_y <- 1.5
+cor_xy <- -0.8
+mvn <- cbind(c(var_x,cor_xy*sqrt(var_x)*sqrt(var_y)),c(cor_xy*sqrt(var_x)*sqrt(var_y),var_y))
+x <- mvn[,1]
+y <- mvn[,2]
+z <- sum(x,y)
+```
+
+Verify from the experimental data that
+Cov(x, y) = -1.2
+```{r}
+cov(x,y)
+```
+
+E(z) = E(x) + E(y)
+```{r}
+print(mean(z))
+
+print(mean(x) + mean(y))
+
+```
+
+Var(z) = Var(x) + Var(y) + 2Cov(x, y)
+```{r}
+print(var(x) + var(y) + 2*cov(x,y))
+
+
+print(var(z))
+
+```
+
+
+For this problem we will look at sample means of an exponential distribution with mean value 3 (parameter is 1/3).  Create 20,000 simulation sets of 10,000 simulations each for this distribution.  Calculate the means of the 20,000 sets and plot a histogram.  Does the histogram look approximately like a normal distribution?
+```{r}
+param <- 1/3
+um<-rexp(10000, param)
+round(mean(um))
+
+largev<- replicate(20000,um)
+mean(largev)
+hist(largev)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

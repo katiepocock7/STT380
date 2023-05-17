@@ -1,0 +1,58 @@
+---
+title: "ICA 12 POCOCK"
+output: html_notebook
+---
+
+
+In-Class Assignment 12
+
+Take the function f(x) = x2 + 3sin(x).
+Graph the function between -8 and 8.  What do you see about minimum and maximum values?
+```{r}
+f1 <- function(x){
+  return(x^2 + 3*sin(x))
+}
+
+curve(f1, from = -8, to = 8)
+```
+I see that the minimum value is almost zero on the y axis and about -1 or -2 on the x axis, each are close to zero.
+
+
+Use the optimize function to find a minimum value in the interval [-3, 3].
+```{r}
+optimize(f1, lower = -3, upper = 3)
+```
+
+Use the optimize function to find a maximum value in the interval [-3, 3].
+```{r}
+optimize(f1, upper = 3, lower = -3, maximum = TRUE)
+```
+
+Take the function f(x, y) = x2 + y2 - 3x + 2y + sin(xy)
+Produce a contour plot for the function in the square [-5, 5] x [-5, 5].  Where do you see a minimum or maximum value?
+Use the optim function to find the minimum value in this square.
+```{r}
+#3-d plot of z = x^2 + y^2 - 3x
+fm <- function(x) x[1]^2 + x[2]^2 - 3 * x[1] + 2* x[2] + sin(x[1]* x[2])
+x_min <- -5
+x_max <- 5
+y_min <- -5
+y_max <- 5
+x <- seq(-5, 5, by = 0.05)
+y <- seq(-5, 5, by = 0.05)
+z <- matrix(nrow=length(x), ncol=length(y))
+for(i in 1:length(x)){
+  for(j in 1:length(y)){
+    z[i,j] <- fm(c(x[i],y[j])) 
+  }
+}
+contour(x,y,z)
+
+# Multi-variable optimization
+optim(c(-5,5),fm)
+
+```
+max value i see is top left, (-4,4) min is (2,0)
+
+
+

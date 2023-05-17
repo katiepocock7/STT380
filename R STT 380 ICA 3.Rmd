@@ -1,0 +1,39 @@
+---
+title: "STT 380 ICA 3"
+output: html_notebook
+---
+A very wobbly 4-sided die is used in a particular game.  For this die, the pmf is given by
+
+What is the cdf for this die?
+ - made graph
+If the die is rolled twice, what is the probability of the sum being a 4?
+  - (0.3)*(0.15) + (0.15)*(0.3) + (0.2)*(0.2) = 0.13
+
+A fair coin is flipped 12 times.
+What is the probability that the coin is heads exactly half of the time?
+```{r}
+dbinom(6,12,0.5)
+```
+What is the probability that the coin is heads 3 times or less?
+```{r}
+pbinom(3,12,0.5)
+```
+Perform a simulation of this coin flip in R.  (1 simulation of 12 coin flips)
+```{r}
+rbinom(1,12,0.5)
+```
+
+In a certain game, a player has a 20% chance of winning.  
+If the player plays the game 6 times, what is the probability of winning at least twice?
+```{r}
+1 - pbinom(1, 6, .20)
+```
+What is the probability on winning zero out of 6 times?
+```{r}
+dbinom(0,6,0.20)
+```
+Perform 1,000 simulations of playing the game 6 times.  How does the proportion in the simulation of getting a zero compare to your answer for b?
+```{r}
+sum(rbinom(1000, 6, 0.20)==0)/1000
+```
+

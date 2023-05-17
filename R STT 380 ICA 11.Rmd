@@ -1,0 +1,67 @@
+---
+title: "ICA 11 POCOCK"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(GGally)
+glimpse(diamonds)
+```
+
+For this assignment you will be looking at the diamonds dataset.  You can pull this in with the tidyverse library.
+Take a look at the fields.  Which ones are numerical?
+      Carat, depth, table, price, x,y, z
+Which numerical field has the largest relative spread?
+```{r}
+sd(diamonds$carat)/mean(diamonds$carat)
+sd(diamonds$depth)/mean(diamonds$depth)
+sd(diamonds$table)/mean(diamonds$table)
+sd(diamonds$price)/mean(diamonds$price)
+sd(diamonds$x)/mean(diamonds$x)
+sd(diamonds$y)/mean(diamonds$y)
+sd(diamonds$z)/mean(diamonds$z)
+```
+
+What are the deciles of carat?  Deciles are the quantiles for every tenth from 0.1 to 0.9.
+```{r}
+quantile(diamonds$carat, c(0.1, 0.9))
+```
+
+How does the median value for carat compare to the average value?
+```{r}
+mean(diamonds$carat)
+median(diamonds$carat)
+```
+
+Produce a histogram for carat.  How would you describe the distribution?
+```{r}
+hist(diamonds$carat)
+```
+
+Produce a normal probability plot for carat.  Does it look like it is normally distributed?
+```{r}
+qqnorm(diamonds$carat)
+```
+
+Produce the covariance and correlation matrices for the numerical fields.  Which field (other than itself) has the highest correlation to price?  Note: you can select specific fields in diamonds by stating diamonds[ , c(list of field numbers)].  So for example to get the cut and color fields only, you can use diamonds[, c(2, 3)]
+```{r}
+cov(diamonds[,c(1,5,6,7,8,9,10)])
+```
+```{r}
+cor(diamonds[,c(1,5,6,7,8,9,10)])
+
+```
+
+Produce a pair plot for the fields carat, table, and price, coloring by cut. (Note: this will take a few minutes to produce).  Make some comments on what you see.
+```{r}
+ggpairs(diamonds[,c(1,2,6,7)], mapping = ggplot2::aes(color=diamonds$cut))
+```
+
+
+
+
+
+
+
+

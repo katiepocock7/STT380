@@ -1,0 +1,103 @@
+---
+title: "ICA 6 POCOCK"
+output: html_notebook
+---
+
+
+
+Plot (on the same graph) 3 exponential probability distributions between x = 0 and 10, with rates = 1, 0.5, and 0.2.
+
+```{r}
+
+x1 <- seq(0,10,by=0.01)
+
+y1 <- dexp(x1,1)
+y2 <- dexp(x1,0.5)
+y3 <- dexp(x1,0.2)
+
+
+plot(x1,y1, type = "l")
+lines(x1,y2)
+lines(x1,y3)
+
+```
+
+Last class we defined a probability density function as p(x) = cx on the interval 0 ≤ x ≤ 4.  We determined that c = 1/8.
+Use calculus to determine the expected value of X.
+
+A random variable has pmf given by the table below.  Use sequences in R to find the expected value and variance.
+```{r}
+px <- c(0.1,0.2,0.1,0.1,0.1,0.2,0.1,0.1)
+x <- c(1,2,3,4,5,6,7,8)
+sum(x*px)
+sum(x**2 * px) - (sum(x*px))**2
+
+```
+
+
+Take a Poisson random variable with parameter λ = 8.  Approximate the expected value in two ways:
+Use a truncated expression (last slide) up to n = 15 to approximate the expected value in R.
+Do a simulation with 1,000 trials of this distribution and calculate the mean.
+Compare (a) and (b) to the exact value given from the formula in slide 9.
+
+```{r}
+mean(rpois(15,8))
+```
+
+```{r}
+sum(seq(0,15, by = 0.01) * dexp(seq(0,15, by = 0.01), 8)) 
+```
+```{r}
+mean(rpois(1000,8))
+
+```
+
+
+Do a simulation of the following distributions to approximate the expected value and variance.  Use 1,000,000 values for each simulation. Calculate the exact values from the formulas for expected values and variances given on slide 9 and compare the simulations to the exact results.
+Binomial, n = 24, p = 0.3
+```{r}
+mean(rbinom(100000,24,0.3))
+var(rbinom(100000,24,0.3))
+
+```
+
+Binomial, n = 150, p = 0.8
+```{r}
+mean(rbinom(100000,150,0.8))
+var(rbinom(100000,150,0.8))
+
+```
+
+Hypergeometric, 400 hits in a total population of 2000, drawing 50
+```{r}
+mean(rhyper(10000,400,1600,50))
+```
+
+Exponential distribution, rate = 0.3
+```{r}
+var(rexp(100000,0.3))
+mean(rexp(100000,0.3))
+
+```
+
+Exponential distribution, rate = 3
+```{r}
+
+var(rexp(100000,3))
+mean(rexp(100000,3))
+```
+
+Normal distribution, mean = 4, standard deviation = 1.4
+```{r}
+
+var(rnorm(100000,4,1.4))
+mean(rnorm(100000,4,1.4))
+
+
+```
+
+
+
+
+
+

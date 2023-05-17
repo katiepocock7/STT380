@@ -1,0 +1,61 @@
+---
+title: "ICA 14 POCOCK"
+output: html_notebook
+---
+
+For this problem, we will use the mtcars dataset.
+```{r}
+data('mtcars')
+length(mtcars$qsec)
+```
+
+1. Examine the qsec field in the dataset.  Calculate its mean and standard deviation.
+```{r}
+mean(mtcars$qsec)
+sd(mtcars$qsec)
+```
+
+2. What is the standard error?
+```{r}
+sd(mtcars$qsec)/sqrt(length(mtcars$qsec))
+
+```
+
+3. Construct a 95% confidence interval for the mean of the qsec field.  Then, construct a 99% 1-sided confidence interval (lower limit).  What would the result be for the 99% confidence interval if you used a normal distribution in place of the t-distribution?
+```{r}
+LCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.025, mean(mtcars$qsec) - 1)
+UCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.975, mean(mtcars$qsec) - 1)
+UCL
+LCL
+```
+```{r}
+mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) * qt(0.01,mean(mtcars$qsec) -1 )
+```
+
+```{r}
+qnorm(0.01, mean(mtcars$qsec), sd(mtcars$qsec)/sqrt(length(mtcars$qsec)))
+```
+
+
+
+4. Construct 95% lower-confidence and upper-confidence intervals (1-sided).
+```{r}
+LCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.025, mean(mtcars$qsec) - 1)
+UCL <- mean(mtcars$qsec) + sd(mtcars$qsec)/sqrt(length(mtcars$qsec)) *qt(0.975, mean(mtcars$qsec) - 1)
+UCL
+LCL
+```
+
+5.  How large would the sample size have to be if a 99% confidence interval were to be 0.2 seconds wide?
+    it would be the size of the population which in this case is equal to 32. 
+
+
+
+
+
+
+
+
+
+
+

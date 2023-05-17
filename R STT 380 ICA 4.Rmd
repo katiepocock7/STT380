@@ -1,0 +1,51 @@
+---
+title: "STT 380 ICA 4"
+output: html_notebook
+---
+
+1. Customers are entering a store at a rate of 1 every 4 minutes. Find:
+a. The probability that exactly 3 customers enter in a 15 minute period
+```{r}
+dpois(3, 0.25*15)
+```
+
+b. The probability that at least 12 customers enter in an hour
+```{r}
+1 - ppois(11, 0.25*60)
+```
+
+c. The median and 90th percentile number of customers that come in a 10 minute period
+```{r}
+qpois(0.9, 0.25 * 10)
+qpois(0.5, 0.25 * 10)
+
+```
+
+d. Do 10 simulations of the number of customers that come in during 2 hours
+```{r}
+rpois(10,0.25*120)
+```
+
+
+2. A bag of M&M’s contains 12 red ones, 10 blue, 9 brown, 9 yellow, 8 green, and 7 orange (55
+total). If you draw 8 M&M’s out of the bag (without replacement), find
+a. The probability that exactly 4 are red
+```{r}
+dhyper(4,12,42,8)
+```
+
+b. The probability that you draw at least 3 browns
+```{r}
+1 - phyper(2,9,46,8)
+```
+
+c. The probability that you draw no more than 2 (yellows or greens)
+```{r}
+phyper(2, 9+8, 38, 8)
+```
+
+d. Simulate the number of reds 10 times.
+```{r}
+rhyper(10,12,43, 8)
+```
+

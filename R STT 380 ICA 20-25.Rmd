@@ -1,0 +1,491 @@
+---
+title: "ICA 20, 21, 23"
+output: html_notebook
+---
+
+
+ICA 20
+
+The Markov Chain we will look at handles the transition of 4 states, gives as follows:
+s1             0.2 s1 + 0.3 s2 + 0.1 s3 + 0.4 s4
+s2              0.1 s2 + 0.7 s3 + 0.2 s4
+s3              0.2 s2 + 0.1 s3 + 0.7 s4
+s4              0.8 s2 + 0.1 s3 + 0.1 s4
+
+1. What is the transition matrix for this Markov Chain?
+```{r}
+P <- cbind(c(.2,0.3,0.1,0.4),c(0,0.1,0.7,0.2), c(0,0.2,0.1,0.7), c(0,0.8,0.1,0.1))
+P
+```
+
+2. Take an initial state (1, 0, 0, 0).  
+a. What is the next state after 1 transition?
+```{r}
+x0 <- as.matrix(c(1,0,0,0)) 
+x1 <- P %*% x0
+x1
+```
+
+b. What is the state after 10 transitions?
+```{r}
+x0 <- as.matrix(c(1,0,0,0)) 
+x <- x0
+for(i in 1:10){
+  x <- P %*% x
+  print(x)
+}
+
+```
+
+c. Is there a stable final state?
+```{r}
+eigen(P)
+
+```
+eigenvector corresponding to eigenvalue 1 is final state, one of the values (first one) is one so yes
+
+4. We will simulate an arbitrary initial state with the Dirichlet distribution.  Define an initial state with the command t(as.matrix(rdirichlet(1,rep(1,4))))  Find the end state after burn-in (50 for burn-in)
+```{r}
+library(DirichletReg)
+state <- t(as.matrix(rdirichlet(1,rep(1,4)))) 
+x <- state
+#initial burn-in 
+for(i in 1:50){
+  x <- P %*% x
+  }
+#collect end-states
+y <- matrix(nrow=4, ncol = 50) 
+for(i in 1:50){
+  x <- P%*%x
+  y[,i]<- x }
+mean(y[1,])
+mean(y[2,]) 
+mean(y[3,])
+```
+
+
+
+
+
+
+```{r}
+# Markov Chains analysis in R
+# find end state by iteration
+A <- cbind(c(.7,.3),c(.5,.5))
+s0 <- as.matrix(c(.2,.8))
+s <- s0
+for(i in 1:100){
+  s_new <- A %*% s
+  if(sum(abs(s-s_new))<0.0001){
+    break
+  }
+  s <- s_new
+}
+i
+s
+# find with eigenvalue and eigenvectors
+eigen(A)
+# eigenvector corresponding to eigenvalue 1 is final state
+# possible to have multiple ev's with value 1; final state is mix of those
+# have to normalize vector so sum is 1
+eigen(A)$vectors[,1] / sum(eigen(A)$vectors[,1])
+
+# finding end states after burn-in
+A <- cbind(c(.2,.4,.4),c(0, 0, 1), c(0, 1,0))
+x1 <- t(as.matrix(rdirichlet(1,rep(1,3))))
+x <- x1
+#initial burn-in
+for(i in 1:50){
+  x <- A %*% x
+  print(x)
+  }
+#collect end-states
+y <- matrix(nrow=3, ncol = 50)
+for(i in 1:50){
+  x <- A%*%x
+  y[,i]<- x
+}
+mean(y[1,])
+mean(y[2,])
+mean(y[3,])
+
+```
+
+
+
+
+
+
+ICA 21
+
+The sample code deals with the case where the prior is a Beta(2, 2) distribution, and then there are 14 games with 9 wins.
+a. Rewrite the code so that there are 8 chains.  Rewrite the code to consider the case where the prior is a Beta(5, 5) distribution.  Be sure to include the correct beta distribution plot for comparison.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(5,5); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9),
+                      chains = 8,
+                      iter = 5000*2,
+                      seed=12345)
+
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 14, 10),
+                col = "black",size = 2)
+
+```
+
+b. Rewrite the original code to consider the case where you play 20 games and win 15.  Be sure to include the correct beta distribution plot for comparison.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 20> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(20, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 15),
+                      chains = 4,
+                      iter = 5000*2,
+                      seed=12345)
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 17, 7),
+                col = "black",size = 2)
+
+
+```
+
+c. Rewrite the code from (a) to consider the case where there are only 100 iterations (50 burn-in, 50 counted).  How does the trace plot look?  How does the density plot compare to the corresponding beta distribution?
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(5,5); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9),
+                      chains = 8,
+                      iter = 50*2,
+                      seed=12345)
+
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 14, 10),
+                col = "black",size = 2)
+```
+
+d. For (b) print out the sim.posterior and compare the quantile values shown to that of the actual posterior beta distribution.
+```{r}
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 20> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(20, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 15),
+                      chains = 4,
+                      iter = 5000*2,
+                      seed=12345)
+print(sim.posterior)
+qbeta(0.25,17,7)
+qbeta(.025,17,7)
+qbeta(.975,17,7)
+qbeta(.50,17,7)
+qbeta(.75,17,7)
+```
+
+
+
+
+
+
+
+
+
+```{r}
+library(rstan)
+library(bayesplot)
+library(dplyr)
+library(StanHeaders)
+
+# Code wrapper for rstan 
+beta.binom.model <- "
+data {
+int<lower = 0, upper = 14> X;
+}
+parameters {
+real<lower = 0, upper = 1> theta;
+}
+model {
+X ~ binomial(14, theta);
+theta ~ beta(2, 2); 
+}
+"
+options(width=60)
+sim.posterior <- stan(model_code = beta.binom.model,
+                      data = list(X = 9), #9 wins
+                      chains = 4,
+                      iter = 5000*2, 
+                      seed=12345)
+
+#got 14 because thats the number of losses+wins
+## Attaching package: 'dplyr'
+## The following object is masked from 'package:kableExtra':
+##
+## group_rows
+## The following objects are masked from 'package:stats':
+##
+## filter, lag
+## The following objects are masked from 'package:base':
+##
+## intersect, setdiff, setequal, union
+round(as.array(sim.posterior, pars = "theta"),4) %>%
+  head(6)
+
+mcmc_trace(sim.posterior,pars = "theta", size= 0.1)
+
+mcmc_dens(sim.posterior, pars = "theta") +
+  yaxis_text(TRUE) +
+  ylab("density") +
+  stat_function(fun = function(x) dbeta(x, 11, 7), #calculated by beta(post) = beta(prior) +losses. and alpha(post) = alpha(prior)+wins
+                col = "black",size = 2)
+```
+
+
+
+ICA 23
+
+STT 380
+In-Class Assignment 23
+For the sampregdata dataset,
+```{r}
+sampregdata <- read.csv('sampregdata.csv')
+sampregdata <- sampregdata[,-1] 
+head(sampregdata)
+```
+
+Create a plot with ggpairs (no color needed).  Evaluate potential multicollinearity issues with multiple x’s.
+
+```{r}
+library(GGally)
+ggpairs(sampregdata)
+```
+
+Split the data into training and test datasets, using a 60/40 split.
+```{r}
+split_pct <- 0.6
+n <- length(sampregdata$y)*split_pct # train size
+row_samp <- sample(1:length(sampregdata$y), n, replace = FALSE)
+train <- sampregdata[row_samp,]
+test <- sampregdata[-row_samp,]
+length(train$y)
+length(test$y)
+```
+
+Build a linear regression model for price on the training dataset, based on the variable with the strongest correlation. #x1
+```{r}
+sampregdata_mod <- lm(data = train, y ~ x4)
+sampregdata_mod
+```
+
+Build the prediction for the test dataset.  How does the test RMSE compare to that for the training model?
+```{r}
+test_pred <- predict(sampregdata_mod,test)
+rmse_train <- sqrt(mean(sampregdata_mod$residuals^2))
+summary(test_pred)
+rmse_train
+```
+
+Next, create a model with all four x’s, again using the same 60/40 split.  Evaluate the model in terms of the fit of parameters and the errors.  Is the x with the strongest fit the same as the one with the highest correlation?
+```{r}
+split_pct <- 0.6
+n <- length(sampregdata$y)*split_pct # train size
+row_samp <- sample(1:length(sampregdata$y), n, replace = FALSE)
+train <- sampregdata[row_samp,]
+test <- sampregdata[-row_samp,]
+sampregdata_mod <- lm(data = train, y ~ x1 + x2 + x3 + x4)
+test_pred <- predict(sampregdata_mod,test)
+test_error <- test$y - test_pred
+rmse_train <- sqrt(mean(sampregdata_mod$residuals^2))
+rmse_test <- sqrt(mean(test_error^2))
+rmse_train
+rmse_test
+```
+
+
+
+
+STT 380
+In-Class Assignment 24
+For the penguins dataset,
+```{r}
+penguin <- read.csv('penguins.csv')
+head(penguin)
+```
+Create a single-variable model, using bill length to predict body mass.
+```{r}
+summary(lm(data = penguin, body_mass_g ~ bill_length_mm))
+```
+
+Next, use bill length and species to predict body mass.  What are the level shifts between the species?
+```{r}
+summary(lm(data = penguin, body_mass_g ~ bill_length_mm + species))
+
+```
+A categorical variable as an input functions as a “level shift” - so the level shifts would be both bill length and species. 
+
+
+Create separate models for the 3 species.  How do the models compare, in terms of errors and coefficients?  Which of the models are similar to each other (if at all)?
+
+```{r}
+mods <- list()
+
+spec <- c("Adelie", "Chinstrap", "Gentoo")
+for(i in 1:3){
+  sset <- subset(penguin, subset = species == spec[i])
+  mods[[i]] <- lm(data = sset, body_mass_g ~ bill_length_mm)
+}
+summary(mods[[1]])
+```
+
+Which model is the “best?”  Why?
+
+Adelie model has Adjusted R-squared:0.2966 and p-value: 2.955e-13. 
+Chinstrap model has Adjusted R-squared:0.2527 and p-value: 7.48e-06
+Gentoo model has Adjusted R-squared:0.4432 and p-value: < 2.2e-16. by these results we would be able to say that model 1 is the "best."
+
+
+
+
+
+
+STT 380
+In-Class Assignment 25
+For the pizza dataset,
+Build a linear regression model for calories, based on fat.  
+```{r}
+pizza <- read.csv('pizza.csv')
+head(pizza)
+summary(lm(data = pizza, cal ~ fat))
+
+```
+How does the RMSE compare to that for the naïve model?
+Now, add moisture to the model.  Has the model significantly improved?  How can you tell?
+```{r}
+summary(lm(data = pizza, cal ~ fat + mois))
+```
+
+Now, add sodium to the model from (c).  Has the model significantly improved?  How can you tell?
+```{r}
+summary(lm(data = pizza, cal ~ fat + mois + sodium))
+```
+For the cars dataset, build a model to predict mpg based on acceleration.
+Build a confidence interval for the acceleration parameter based on t values
+Build a confidence interval for the acceleration parameter based on regular bootstrapping
+Build a confidence interval for the acceleration parameter based on Bayesian bootstrapping
+How do the CI’s compare?
+Build a linear regression model, using acceleration and weight to predict mpg.  Perform sensitivity analysis to determine the impact of each x variable on the model.
+
+
+
+
+
+
+
+
+
+
+
+
+
+STT 380
+In-Class Assignment 26
+
+For this we will look at the economic data provided.  We will use the other variables to predict consumer sentiment.  The other variables are unemployment rate
+Create a cross-correlation plot for each x against the consumer sentiment data (undifferenced).  Which lag (to the right of 0) for each appears to be the most useful (don’t use past lag 12)?  (Be sure to use the correct sign of correlation!)
+```{r}
+econ_data <- read.csv('econ_data.csv')
+
+ccf(econ_data$UMConSent, econ_data$UNRATE)
+#econ_data
+```
+one
+
+Built a lm model based on these lagged x’s.
+```{r}
+summary(lm(econ_data$UMConSent~lag(UNRATE$..0.377,6)))
+```
+
+Based on your model, what is the prediction for November 2022?
+
+New, create a cross-correlation plot for each x against the consumer sentiment data, but this time, with differenced data.  
+Which positive lag for each appears to be the most useful?
+Built a lm model based on the differenced results.  How does the model compare to that of (2) in terms of both R-squared and RMSE?
+```{r}
+ccf(diff(econ_data$UMConSent),diff(econ_data$UNRATE))
+```
+
+
+
+
+
+
+
+
+
+
+

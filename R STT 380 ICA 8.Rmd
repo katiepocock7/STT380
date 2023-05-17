@@ -1,0 +1,56 @@
+---
+title: "ICA 8 POCOCK"
+output: html_notebook
+---
+
+1. A Michigan Manufacturer is looking to decide whether to produce a component for its product itself, or instead purchase the product from a third party.  Because of high capital costs, low demand for its product will make manufacturing the product unprofitable, while it will be highly profitable in the case of high demand.  The payoff for each scenario is given by the following table (in 1,000’s of dollars):
+
+Marketing is estimating that the probability of the low, medium, and high demand scenarios is 35%, 35%, and 30%.  With these probabilities, which choice maximizes the expected profit?
+	
+```{r}
+(-20)*0.35 + (40)*0.35 + (100)*0.3
+(10)*0.35 + (45)*.35 + (70)*0.3
+
+```
+	
+	
+2. You are a product manager who has to pick one of 3 products to develop.  Product A has a 50% chance of success, and if successful will yield $5,000,000 in revenue.  Product B will be successful, but will yield a random amount uniformly distributed between $1,000,000 and $3,000,000.  Product C will also be successful, but will yield revenue given by an exponential distribution with mean $2,200,000.  Which one has the highest expected value?
+
+```{r}
+A = 0.5 * 5000000
+B = 2000000
+C = 2200000
+```
+
+
+
+3. Suppose in (1) above, that the low demand scenario is still 35%, but the probabilities of the medium and high demand scenarios are unknown.
+(a) Find the expected values of the alternatives as a function of the probability of a high demand scenario.
+      M(x) = (-20)*0.35 + (40)*(0.65 - p) + (100)*p
+      P(x) = (10)*0.35 + (45)*(0.65 - p) + (70)*p
+
+(b) Graph the alternatives’ expected values (note that p will not go to 1 in this case).
+```{r}
+p <- seq(0,0.65, 0.0001)
+manufacture <- (-20)*0.35 + (40)*(0.65-p) + (100)*p
+purchase <- (10)*0.35 + (45)*(0.65 - p) + (70)*p
+plot(p,manufacture, type = 'l')
+lines(p, purchase, type = 'l', col = 'blue')
+```
+
+(c) Find the point at which the expected values are equal and state for which probabilities will one vs. the other have the higher expected values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

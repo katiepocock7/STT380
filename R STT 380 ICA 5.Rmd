@@ -1,0 +1,46 @@
+---
+title: "ICA5"
+output: html_document
+date: "2022-09-19"
+---
+
+Define a probability density function as p(x) = cx on the interval 0 ≤ X ≤ 4.
+Determine what c is.
+1/8
+What is the probability that X < 2?
+(1/8)*(2)^2-0= 0.5
+
+Customers are entering a store at a rate of 1 every 4 minutes.  Once a customer enters, find:
+The probability that another customer will arrive in the next 90 seconds.
+```{r}
+pexp(1.5,0.25)
+```
+The probability that another customer will arrive in the next 90 seconds, given that a customer will arrive in the next 5 minutes.
+```{r}
+pexp(1.5,0.25)/pexp(5,0.25)
+```
+The probability that it will take more than 8 minutes for another customer to arrive?
+```{r}
+1 - pexp(8,0.25)
+```
+
+
+
+The silicon wafers produced at fa semiconductor plant have a flatness deviation which fit a normal distribution with mean 10.0 μm with standard deviation 2.5 μm.  If the wafer has a deviation greater than 16.7 μm, it is defective.  The automated quality control system can detect if the deviation is greater than 17.0 μm.  
+What is the probability that a wafer is defective?
+```{r}
+1 - pnorm(16.7,10,2.5)
+```
+
+What is the probability that the quality control system will detect a defect in any wafer?
+```{r}
+1 - pnorm(17,10,2.5)
+```
+
+What is the probability that a wafer is defective and the quality control system does not detect the defect?
+```{r}
+(1 - pnorm(16.7,10,2.5)) - (1 - pnorm(17,10,2.5))
+```
+
+
+

@@ -1,0 +1,55 @@
+---
+title: "ICA 13 POCOCK"
+output: html_notebook
+---
+
+1. For the price field in the diamonds dataset
+```{r}
+library(ggplot2)
+library(dplyr)
+
+glimpse(diamonds$price)
+```
+
+a) First plot a histogram of the data.  Does it look approximately exponential?
+      Yes the graph looks approximately exponential
+```{r}
+hist(diamonds$price)
+```
+
+b) Adapt the LL optimization code to find the maximum likelihood estimate for an exponential distribution for the price data.
+```{r}
+f <- function (lamb) length(diamonds$price)*log(lamb)-1*lamb*sum(diamonds$price)
+optimize(f,c(0,3),maximum=TRUE)
+```
+
+2. A sample consists of {0.1, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95}.  It is thought to fit a probability distribution of the form p(x) = (α+1)xα, for 0 ≤ x ≤ 1.  Find the maximum likelihood estimate for the parameter α.
+```{r}
+samp <- c(0.1, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95)
+
+product <- prod(samp)
+summed <- sum(samp)
+
+LL <- function(x) log(product) + length(diamonds$z) * log(x) - summed*x
+optimize(LL, c(0, 4), maximum = TRUE)
+```
+
+
+3. From diamonds dataset take the field z.  Adopt the code to find the MLE’s for the parameters of the normal distribution.
+```{r}
+glimpse(diamonds$z)
+product <- prod(diamonds$z)
+summed <- sum(diamonds$z)
+
+LL <- function(x) log(product) + length(diamonds$z) * log(x) - summed*x
+optimize(LL, c(0, 4), maximum = TRUE)
+
+```
+
+
+
+
+
+
+
+
